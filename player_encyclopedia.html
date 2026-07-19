@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>16タイプ モンスター図鑑 | LOVEQUEST MASTERS</title>
+<title>LOVEQUESTプレイヤー図鑑</title>
 <style>
 :root{
   --bg:#0D0D1A; --card:#1A1A35; --card2:#12122A;
@@ -27,14 +27,14 @@ header p{font-size:11.5px;color:var(--muted);margin-top:4px}
 
 /* ── ROSTER ── */
 #view-roster{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.mon-card{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:12px;cursor:pointer;transition:.15s}
-.mon-card:hover{border-color:var(--gold);transform:translateY(-2px)}
-.mon-card .icon{font-size:34px;text-align:center}
-.mon-card .name{font-size:13px;font-weight:900;color:var(--white);text-align:center;margin-top:4px}
-.mon-card .elem{font-size:10px;color:var(--muted);text-align:center;margin-top:2px}
-.mon-card .stars{font-size:10px;text-align:center;margin-top:4px;color:var(--gold)}
+.pc-card{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:12px;cursor:pointer;transition:.15s}
+.pc-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.pc-card .icon{font-size:34px;text-align:center}
+.pc-card .name{font-size:13px;font-weight:900;color:var(--white);text-align:center;margin-top:4px}
+.pc-card .elem{font-size:10px;color:var(--muted);text-align:center;margin-top:2px}
+.pc-card .stars{font-size:10px;text-align:center;margin-top:4px;color:var(--gold)}
 
-/* ── DETAIL / MONSTER SHEET ── */
+/* ── DETAIL / PLAYER SHEET ── */
 .sheet{background:var(--card);border:1px solid #2a2a4a;border-radius:14px;padding:16px;margin-top:10px}
 .sheet-head{display:flex;align-items:center;gap:14px;border-bottom:1px solid #2a2a4a;padding-bottom:12px;margin-bottom:12px}
 .sheet-head .icon{font-size:48px}
@@ -93,7 +93,7 @@ header p{font-size:11.5px;color:var(--muted);margin-top:4px}
 <body>
 
 <header>
-  <h1>📖 16タイプ モンスター図鑑</h1>
+  <h1>📖 LOVEQUESTプレイヤー図鑑</h1>
   <p>恋愛式学 × RPG化プロトタイプ ｜ 16タイプ × 16タイプ = 256通りの相性を自動生成</p>
 </header>
 
@@ -147,7 +147,7 @@ header p{font-size:11.5px;color:var(--muted);margin-top:4px}
   </div>
 </div>
 
-<!-- Monster detail sheet (roster tab) -->
+<!-- Player detail sheet (roster tab) -->
 <div class="wrap" id="detailWrap" style="display:none">
   <button class="back-btn" onclick="closeDetail()">← 図鑑に戻る</button>
   <div class="sheet" id="detailSheet"></div>
@@ -246,7 +246,7 @@ function renderRoster(){
   TYPES.forEach((t, idx) => {
     const r = rarityOf(t);
     const d = document.createElement('div');
-    d.className = 'mon-card';
+    d.className = 'pc-card';
     d.innerHTML = `<div class="icon">${t.icon}</div><div class="name">${t.code}</div>
       <div class="elem">${BASE[t.p].name}×${BASE[t.s].name}</div>
       <div class="stars">${starStr(r)}</div>`;
