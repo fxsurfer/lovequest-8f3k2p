@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>相性ライブラリ | LOVEQUESTプレイヤー図鑑</title>
+<style>
+:root{
+  --bg:#0D0D1A; --card:#1A1A35; --card2:#12122A;
+  --gold:#F5A623; --red:#E94560; --blue:#4A9EDB;
+  --green:#4CAF73; --purple:#7B5EA7;
+  --white:#FFFFFF; --light:#E0E0E0; --muted:#8888AA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
+  background:var(--bg);color:var(--light);min-height:100vh}
+header{background:linear-gradient(135deg,#0D0D1A 0%,#1A0D2E 100%);
+  border-bottom:1px solid #2a2a4a;padding:14px 16px;text-align:center}
+header h1{font-size:19px;font-weight:900;color:var(--gold);letter-spacing:.5px}
+header p{font-size:11px;color:var(--muted);margin-top:4px}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+
+.loading{text-align:center;color:var(--muted);font-size:13px;padding:40px}
+
+/* picker */
+.picker-row{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.picker{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:10px 16px;
+  display:flex;align-items:center;gap:8px;cursor:pointer;min-width:150px;justify-content:center}
+.picker .icon{font-size:26px}
+.picker .name{font-size:13px;font-weight:700}
+.vs{font-size:20px;color:var(--gold);font-weight:900}
+.go-btn{display:block;margin:8px auto 0;font-size:13px;padding:8px 24px;border-radius:20px;
+  border:none;background:var(--gold);color:var(--bg);font-weight:900;cursor:pointer}
+.go-btn:disabled{opacity:.4;cursor:default}
+
+/* pick modal */
+#pickModal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;display:none;
+  align-items:center;justify-content:center;padding:16px}
+#pickModal .box{background:var(--card);border-radius:14px;padding:16px;max-width:560px;width:100%;max-height:80vh;overflow:auto}
+#pickModal h3{color:var(--gold);font-size:15px;margin-bottom:10px;text-align:center}
+.pick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pick-item{background:var(--card2);border:1px solid #333;border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer}
+.pick-item:hover{border-color:var(--gold)}
+.pick-item .icon{font-size:22px}
+.pick-item .name{font-size:9.5px;font-weight:700;margin-top:2px}
+
+/* random browse */
+.browse-row{display:flex;justify-content:center;gap:8px;margin:6px 0 4px;flex-wrap:wrap}
+.browse-btn{font-size:11.5px;padding:6px 14px;border-radius:16px;border:1px solid #444;
+  background:transparent;color:var(--muted);cursor:pointer}
+.browse-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* article */
+#article{display:none;background:var(--card);border:1px solid #2a2a4a;border-radius:16px;padding:22px 20px;margin-top:16px}
+.art-head{text-align:center;border-bottom:1px solid #2a2a4a;padding-bottom:14px;margin-bottom:16px}
+.art-head .icons{font-size:40px}
+.art-head .title{font-size:18px;font-weight:900;color:var(--gold);margin-top:4px}
+.art-body{font-size:13.5px;line-height:1.9;color:var(--light)}
+.art-body p{margin-bottom:10px}
+.art-body .sec-h{color:var(--gold);font-weight:900;font-size:14px;margin:20px 0 8px;
+  padding-bottom:4px;border-bottom:1px solid #2a2a4a}
+.art-body p:first-child{margin-top:0}
+.source-tag{font-size:10px;color:var(--muted);text-align:right;margin-top:16px}
+.back-top{display:block;margin:16px auto 0;font-size:12px;padding:7px 18px;border-radius:16px;
+  border:1px solid #444;background:transparent;color:var(--muted);cursor:pointer}
+
+/* missing state */
+#missing{display:none;background:var(--card);border:2px solid var(--red);border-radius:16px;
+  padding:24px 20px;text-align:center;margin-top:16px}
+#missing .m-icon{font-size:40px;margin-bottom:8px}
+#missing .m-title{font-size:15px;font-weight:900;color:var(--red)}
+#missing .m-desc{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+.fallback-link{display:inline-block;margin-top:14px;font-size:12px;padding:8px 18px;border-radius:16px;
+  background:var(--gold);color:var(--bg);font-weight:900;text-decoration:none}
+
+.stats-bar{text-align:center;font-size:11px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📚 相性ライブラリ</h1>
+  <p>ジョニー執筆・16タイプ×16タイプの本物の相性解説（自動生成ではありません）</p>
+</header>
+
+<div class="wrap">
+  <div class="loading" id="loading">読み込み中...</div>
+
+  <div id="mainUI" style="display:none">
+    <div class="picker-row">
+      <div class="picker" id="pickA" onclick="openPick('A')">
+        <span class="icon" id="pickA-icon">🔮</span><span class="name" id="pickA-name">占い師</span>
+      </div>
+      <span class="vs">×</span>
+      <div class="picker" id="pickB" onclick="openPick('B')">
+        <span class="icon" id="pickB-icon">🏇</span><span class="name" id="pickB-name">騎士</span>
+      </div>
+    </div>
+    <button class="go-btn" onclick="showEntry()">📖 相性を読む</button>
+    <div class="browse-row">
+      <button class="browse-btn" onclick="randomEntry()">🎲 ランダムに読む</button>
+    </div>
+    <div class="stats-bar" id="statsBar"></div>
+
+    <div id="article">
+      <div class="art-head">
+        <div class="icons" id="artIcons"></div>
+        <div class="title" id="artTitle"></div>
+      </div>
+      <div class="art-body" id="artBody"></div>
+      <div class="source-tag" id="artSource"></div>
+      <button class="back-top" onclick="scrollToTop()">↑ 上に戻る</button>
+    </div>
+
+    <div id="missing">
+      <div class="m-icon">📝</div>
+      <div class="m-title">この組み合わせはまだ執筆中です</div>
+      <div class="m-desc" id="missingDesc"></div>
+      <a class="fallback-link" href="player_encyclopedia.html" target="_blank">🔮 仮の自動診断結果を見る（プレイヤー図鑑）</a>
+    </div>
+  </div>
+</div>
+
+<!-- Pick modal -->
+<div id="pickModal">
+  <div class="box">
+    <h3 id="pickModalTitle">タイプを選択</h3>
+    <div class="pick-grid" id="pickGrid"></div>
+  </div>
+</div>
+
+<script>
+const TYPES = [
+  {code:'狂戦士',icon:'⚔️'}, {code:'勇者',icon:'🦸'}, {code:'魔法戦士',icon:'🧙'}, {code:'聖戦士',icon:'🛡️'},
+  {code:'姫',icon:'👸'}, {code:'騎士',icon:'🏇'}, {code:'盗賊',icon:'🗡️'}, {code:'妖精',icon:'🧚'},
+  {code:'シスター',icon:'🌿'}, {code:'兵士',icon:'🪖'}, {code:'牧師',icon:'📖'}, {code:'賢者',icon:'🦉'},
+  {code:'魔道士',icon:'🔮'}, {code:'忍者',icon:'🥷'}, {code:'道化師',icon:'🎭'}, {code:'占い師',icon:'⭐'},
+];
+const ICON_BY_NAME = Object.fromEntries(TYPES.map(t=>[t.code,t.icon]));
+
+let LIBRARY = [];       // raw array from JSON
+let PAIR_INDEX = {};    // "typeA|typeB" (sorted) -> entry
+let selA = TYPES[15], selB = TYPES[5]; // 占い師 x 騎士 default
+
+function pairKey(a,b){ return [a,b].sort().join('|'); }
+
+fetch('data/compat_library.json')
+  .then(r => r.json())
+  .then(data => {
+    LIBRARY = data;
+    data.forEach(e => { PAIR_INDEX[pairKey(e.typeA, e.typeB)] = e; });
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('mainUI').style.display = 'block';
+    updatePickers();
+    const total = TYPES.length*(TYPES.length+1)/2;
+    document.getElementById('statsBar').textContent = `現在 ${data.length} / ${total} 通り収録済み`;
+  })
+  .catch(err => {
+    document.getElementById('loading').textContent = '読み込みに失敗しました。data/compat_library.json を確認してください。';
+    console.error(err);
+  });
+
+function openPick(target){
+  document.getElementById('pickModalTitle').textContent = (target==='A'?'タイプA':'タイプB') + ' を選択';
+  const g = document.getElementById('pickGrid');
+  g.innerHTML = '';
+  TYPES.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'pick-item';
+    d.innerHTML = `<div class="icon">${t.icon}</div><div class="name">${t.code}</div>`;
+    d.onclick = () => { if(target==='A') selA=t; else selB=t; updatePickers(); closePick(); };
+    g.appendChild(d);
+  });
+  document.getElementById('pickModal').style.display = 'flex';
+}
+function closePick(){ document.getElementById('pickModal').style.display = 'none'; }
+document.getElementById('pickModal').onclick = (e) => { if(e.target.id==='pickModal') closePick(); };
+
+function updatePickers(){
+  document.getElementById('pickA-icon').textContent = selA.icon;
+  document.getElementById('pickA-name').textContent = selA.code;
+  document.getElementById('pickB-icon').textContent = selB.icon;
+  document.getElementById('pickB-name').textContent = selB.code;
+}
+
+// 見出しらしき行を検出する簡易ルール:
+// 短め(40字以内)・句点で終わらない・特定キーワードを含む
+const HEAD_KEYWORDS = ['ポイント','相性','あるある','まとめ','話し方','注意するべき','恋愛・結婚','友達としての','家族としての'];
+function looksLikeHeading(line){
+  if(line.length === 0 || line.length > 45) return false;
+  if(line.endsWith('。')) return false;
+  return HEAD_KEYWORDS.some(k => line.includes(k));
+}
+
+function renderContent(content){
+  const paras = content.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+  let html = '';
+  paras.forEach(p => {
+    const lines = p.split('\n').map(l=>l.trim()).filter(Boolean);
+    lines.forEach(line => {
+      if(looksLikeHeading(line)){
+        html += `<div class="sec-h">${escapeHtml(line)}</div>`;
+      } else {
+        html += `<p>${escapeHtml(line)}</p>`;
+      }
+    });
+  });
+  return html;
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showEntry(){
+  const key = pairKey(selA.code, selB.code);
+  const entry = PAIR_INDEX[key];
+  if(!entry){
+    document.getElementById('article').style.display = 'none';
+    document.getElementById('missing').style.display = 'block';
+    document.getElementById('missingDesc').textContent =
+      `「${selA.code}×${selB.code}」の詳細解説は現在ジョニーさんが執筆中です。届き次第このページに反映されます。`;
+    return;
+  }
+  document.getElementById('missing').style.display = 'none';
+  document.getElementById('article').style.display = 'block';
+  document.getElementById('artIcons').textContent = `${ICON_BY_NAME[entry.typeA]} × ${ICON_BY_NAME[entry.typeB]}`;
+  document.getElementById('artTitle').textContent = `【${entry.typeA}タイプ】 × 【${entry.typeB}タイプ】`;
+  document.getElementById('artBody').innerHTML = renderContent(entry.content);
+  document.getElementById('artSource').textContent = `出典: 恋愛式学 継承マスター資料（${entry.source}）`;
+  window.scrollTo({top: document.getElementById('article').offsetTop - 20, behavior:'smooth'});
+}
+
+function randomEntry(){
+  const entry = LIBRARY[Math.floor(Math.random()*LIBRARY.length)];
+  selA = TYPES.find(t=>t.code===entry.typeA) || {code:entry.typeA, icon:'❓'};
+  selB = TYPES.find(t=>t.code===entry.typeB) || {code:entry.typeB, icon:'❓'};
+  updatePickers();
+  showEntry();
+}
+
+function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+</script>
+</body>
+</html>
