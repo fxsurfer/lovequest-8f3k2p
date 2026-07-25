@@ -197,13 +197,16 @@ const FLOW = {
   },
 };
 
+let answerHistory = []; // 選んだステップのキーを記録（window.historyと衝突しないよう命名）
+let currentKey = 'root';
+
 function renderStep(){
   const step = FLOW[currentKey];
   document.getElementById('result').style.display = 'none';
   document.getElementById('qcard').style.display = 'block';
   document.querySelector('.nav-row').style.display = 'flex';
 
-  document.getElementById('stepLbl').textContent = `STEP ${history.length+1} / ${estimateTotal()}`;
+  document.getElementById('stepLbl').textContent = `STEP ${answerHistory.length+1} / ${estimateTotal()}`;
   document.getElementById('qtext').textContent = step.text;
   document.getElementById('qhint').textContent = step.hint || '';
 
@@ -217,7 +220,7 @@ function renderStep(){
     cc.appendChild(d);
   });
 
-  document.getElementById('backBtn').disabled = history.length === 0;
+  document.getElementById('backBtn').disabled = answerHistory.length === 0;
   renderProgress();
 }
 
@@ -232,14 +235,14 @@ function renderProgress(){
   p.innerHTML = '';
   for(let i=0;i<total;i++){
     const dot = document.createElement('div');
-    dot.className = 'dot' + (i < history.length ? ' done' : (i===history.length ? ' active' : ''));
+    dot.className = 'dot' + (i < answerHistory.length ? ' done' : (i===answerHistory.length ? ' active' : ''));
     p.appendChild(dot);
   }
 }
 
 function selectChoice(c){
   const step = FLOW[currentKey];
-  history.push({ key: currentKey });
+  answerHistory.push({ key: currentKey });
   if(step.result){
     showResult(step.result, c.conf, c.note);
     return;
@@ -249,8 +252,8 @@ function selectChoice(c){
 }
 
 function goBack(){
-  if(history.length===0) return;
-  const last = history.pop();
+  if(answerHistory.length===0) return;
+  const last = answerHistory.pop();
   currentKey = last.key;
   document.getElementById('result').style.display = 'none';
   document.getElementById('qcard').style.display = 'block';
@@ -258,7 +261,7 @@ function goBack(){
 }
 
 function restart(){
-  history = [];
+  answerHistory = [];
   currentKey = 'root';
   renderStep();
 }
@@ -276,7 +279,7 @@ function showResult(typeCode, conf, note){
     ? '🎯 確度：高め（表情・エネルギー・職業がすべて一致）'
     : '🌱 確度：仮説段階（' + (note||'追加確認をおすすめします') + '）';
 
-  const traceLines = history.map((h,i)=>`STEP${i+1}: ${FLOW[h.key].text}`).join('<br>');
+  const traceLines = answerHistory.map((h,i)=>`STEP${i+1}: ${FLOW[h.key].text}`).join('<br>');
   document.getElementById('trace').innerHTML = `<b>診断の道のり</b><br>${traceLines}`;
 
   document.getElementById('result').style.display = 'block';
