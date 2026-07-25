@@ -49,8 +49,13 @@ header p{font-size:11px;color:var(--muted);margin-top:4px}
   background:transparent;color:var(--muted);cursor:pointer}
 
 /* result */
-#result{display:none;background:var(--card);border:2px solid var(--gold);border-radius:18px;
+#result{display:none;background:var(--card);border-radius:18px;
   padding:26px 20px;text-align:center}
+#result.conf-high{border:2px solid var(--gold)}
+#result.conf-mid{border:2px solid var(--red)}
+.mismatch-box{display:none;background:#2A0D1A;border:1.5px solid var(--red);border-radius:10px;
+  padding:10px 14px;margin-bottom:14px;text-align:left;font-size:12px;color:var(--red);line-height:1.6}
+#result.conf-mid .mismatch-box{display:block}
 #result .r-icon{font-size:64px;margin-bottom:6px}
 #result .r-name{font-size:24px;font-weight:900;color:var(--gold)}
 #result .r-sub{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:14px}
@@ -92,6 +97,7 @@ header p{font-size:11px;color:var(--muted);margin-top:4px}
   </div>
 
   <div id="result">
+    <div class="mismatch-box">⚠️ <b>職業が一致しませんでした。</b> 写真と「エネルギーの向き」からは下記タイプが最有力ですが、職業だけは当てはまらなかったため確度は下がっています。プロフィール文章を見て最終確認してください。</div>
     <div class="r-icon" id="rIcon"></div>
     <div class="r-name" id="rName"></div>
     <div class="r-sub" id="rSub"></div>
@@ -277,7 +283,8 @@ function showResult(typeCode, conf, note){
   document.getElementById('rDesc').textContent = info.desc;
   document.getElementById('rConf').textContent = conf==='high'
     ? '🎯 確度：高め（表情・エネルギー・職業がすべて一致）'
-    : '🌱 確度：仮説段階（' + (note||'追加確認をおすすめします') + '）';
+    : '⚠️ 確度：仮説段階（' + (note||'追加確認をおすすめします') + '）';
+  document.getElementById('result').className = conf==='high' ? 'conf-high' : 'conf-mid';
 
   const traceLines = answerHistory.map((h,i)=>`STEP${i+1}: ${FLOW[h.key].text}`).join('<br>');
   document.getElementById('trace').innerHTML = `<b>診断の道のり</b><br>${traceLines}`;
