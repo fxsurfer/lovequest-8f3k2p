@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>タイプ診断フローチャート | LOVEQUESTプレイヤー図鑑</title>
+<style>
+:root{
+  --bg:#0D0D1A; --card:#1A1A35; --card2:#12122A;
+  --gold:#F5A623; --red:#E94560; --blue:#4A9EDB;
+  --green:#4CAF73; --purple:#7B5EA7;
+  --white:#FFFFFF; --light:#E0E0E0; --muted:#8888AA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
+  background:var(--bg);color:var(--light);min-height:100vh}
+header{background:linear-gradient(135deg,#0D0D1A 0%,#1A0D2E 100%);
+  border-bottom:1px solid #2a2a4a;padding:14px 16px;text-align:center}
+header h1{font-size:19px;font-weight:900;color:var(--gold);letter-spacing:.5px}
+header p{font-size:11px;color:var(--muted);margin-top:4px}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+
+/* progress dots */
+.progress{display:flex;justify-content:center;gap:6px;margin-bottom:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:#333355;transition:.2s}
+.dot.active{background:var(--gold);width:20px;border-radius:5px}
+.dot.done{background:var(--green)}
+
+/* question card */
+.qcard{background:var(--card);border:1px solid #2a2a4a;border-radius:16px;padding:22px 18px;text-align:center}
+.qcard .step-lbl{font-size:11px;color:var(--muted);margin-bottom:6px}
+.qcard h2{font-size:16px;color:var(--white);line-height:1.5;margin-bottom:18px}
+.qcard .hint{font-size:11px;color:var(--muted);margin-top:-10px;margin-bottom:16px}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{background:var(--card2);border:1.5px solid #333;border-radius:12px;padding:14px 16px;
+  text-align:left;cursor:pointer;transition:.15s;display:flex;gap:12px;align-items:center}
+.choice:hover{border-color:var(--gold);transform:translateX(2px)}
+.choice .cicon{font-size:24px;flex-shrink:0}
+.choice .ctext{font-size:13.5px;line-height:1.5}
+.choice .ctext b{color:var(--white);display:block;font-size:14px;margin-bottom:2px}
+.choice .ctext span{color:var(--muted);font-size:11.5px}
+
+.nav-row{display:flex;justify-content:space-between;margin-top:14px}
+.back-btn{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #444;
+  background:transparent;color:var(--muted);cursor:pointer}
+.back-btn:disabled{opacity:.3;cursor:default}
+.restart-btn{font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid #444;
+  background:transparent;color:var(--muted);cursor:pointer}
+
+/* result */
+#result{display:none;background:var(--card);border:2px solid var(--gold);border-radius:18px;
+  padding:26px 20px;text-align:center}
+#result .r-icon{font-size:64px;margin-bottom:6px}
+#result .r-name{font-size:24px;font-weight:900;color:var(--gold)}
+#result .r-sub{font-size:12px;color:var(--muted);margin-top:4px;margin-bottom:14px}
+#result .r-desc{font-size:13px;line-height:1.8;color:var(--light);text-align:left;
+  background:var(--card2);border-radius:10px;padding:14px;margin-bottom:14px}
+#result .r-confidence{font-size:11px;color:var(--muted);margin-bottom:16px}
+.result-links{display:flex;flex-direction:column;gap:8px}
+.rlink{display:block;background:var(--card2);border:1px solid #333;border-radius:10px;
+  padding:10px 14px;font-size:12.5px;color:var(--light);text-decoration:none;text-align:center;transition:.15s}
+.rlink:hover{border-color:var(--gold);color:var(--gold)}
+.restart-final{margin-top:14px;font-size:12px;padding:8px 20px;border-radius:20px;border:none;
+  background:var(--gold);color:var(--bg);font-weight:900;cursor:pointer}
+
+.trace{margin-top:16px;font-size:10.5px;color:var(--muted);text-align:left;
+  background:var(--card2);border-radius:8px;padding:10px 12px;line-height:1.8}
+.trace b{color:var(--light)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧭 タイプ診断フローチャート</h1>
+  <p>マッチングアプリのプロフィール写真から、質問に答えて4タイプを絞り込みます</p>
+</header>
+
+<div class="wrap">
+  <div class="progress" id="progress"></div>
+
+  <div class="qcard" id="qcard">
+    <div class="step-lbl" id="stepLbl">STEP 1 / 4</div>
+    <h2 id="qtext"></h2>
+    <div class="hint" id="qhint"></div>
+    <div class="choices" id="choices"></div>
+  </div>
+
+  <div class="nav-row">
+    <button class="back-btn" id="backBtn" onclick="goBack()">← 一つ戻る</button>
+    <button class="restart-btn" onclick="restart()">🔄 最初から</button>
+  </div>
+
+  <div id="result">
+    <div class="r-icon" id="rIcon"></div>
+    <div class="r-name" id="rName"></div>
+    <div class="r-sub" id="rSub"></div>
+    <div class="r-desc" id="rDesc"></div>
+    <div class="r-confidence" id="rConf"></div>
+    <div class="trace" id="trace"></div>
+    <div class="result-links">
+      <a class="rlink" href="インパス診断ツール.html" target="_blank">🔮 さらに詳しく診断する（チップ選択式・インパス診断ツール）</a>
+      <a class="rlink" href="player_encyclopedia.html" target="_blank">📖 16タイプ プレイヤー図鑑を見る</a>
+    </div>
+    <button class="restart-final" onclick="restart()">🔄 もう一度診断する</button>
+  </div>
+</div>
+
+<script>
+// ─── FLOW DEFINITION ─────────────────────────────────
+// Step1: 太陽 or 月（第一印象）
+// Step2: 表情の質問（枝分かれ）
+// Step3: 写真の種類で確認
+// Step4: プロフィール文章の傾向で最終確認
+const TYPE_INFO = {
+  SE:{ icon:'⚔️', name:'戦士タイプ', color:'var(--red)',
+       desc:'達成本位・行動重視。夢や目標に一直線で、頼れる存在として見られたいタイプです。恋愛でも「同志」になれる相手を求めます。' },
+  OD:{ icon:'💃', name:'踊り子タイプ', color:'var(--gold)',
+       desc:'愛情本位・共感重視。人を楽しませ、気持ちが通じ合うことを大切にするタイプです。「一緒にいると楽しい」を求めます。' },
+  SO:{ icon:'🕊', name:'僧侶タイプ', color:'var(--green)',
+       desc:'調和本位・貢献重視。場の空気を大切にし、目立たぬところで支えるタイプです。安心できる関係をじっくり育てたい人です。' },
+  MA:{ icon:'🪄', name:'魔法使いタイプ', color:'var(--purple)',
+       desc:'興味本位・本質重視。センスや納得感を大切にし、深い会話を求めるタイプです。安易な褒め言葉より、理由のある共感を欲します。' },
+};
+
+const STEPS = [
+  { // STEP 1
+    text: 'プロフィール写真を見た「第一印象」は？',
+    hint: '一番よく使われているメイン写真で判断してください',
+    choices: [
+      { icon:'🌞', title:'明るい・笑顔が目立つ', sub:'表情がパッと華やか、リアクションが大きい', next:'sun_face' },
+      { icon:'🌙', title:'落ち着いている・クール', sub:'表情の変化が少ない、静かな雰囲気', next:'moon_face' },
+    ]
+  },
+  { key:'sun_face', // STEP 2 (太陽ルート)
+    branch:'sun',
+    text:'目もとと口もとの表情は？',
+    hint:'"太陽"タイプの中でも、笑顔の質で分かれます',
+    choices: [
+      { icon:'😄', title:'目がぱっちり・満面の笑み', sub:'歯が見える・愛くるしい・よく笑う', next:'od_photo' },
+      { icon:'👀', title:'目力が強い・姿勢がキリッ', sub:'笑顔より力強さ、堂々とした表情', next:'se_photo' },
+    ]
+  },
+  { key:'moon_face', // STEP 2 (月ルート)
+    branch:'moon',
+    text:'目もとと口もとの表情は？',
+    hint:'"月"タイプの中でも、笑顔の質で分かれます',
+    choices: [
+      { icon:'😐', title:'微笑んでいるが目は笑ってない', sub:'切れ長・クール・ポーカーフェイス寄り', next:'ma_photo' },
+      { icon:'🙂', title:'ほんわり優しい笑顔', sub:'力の抜けた自然体、柔らかい雰囲気', next:'so_photo' },
+    ]
+  },
+  { key:'od_photo', branch:'od',
+    text:'写真に写っているシーンは？',
+    hint:'踊り子タイプかどうか、写真の内容で確認します',
+    choices: [
+      { icon:'🎡', title:'映えスポット・旅行・パーティー', sub:'華やかな背景、みんなで盛り上がっている雰囲気', result:'OD', conf:'high' },
+      { icon:'🧘', title:'実は一人旅・落ち着いた場所が多い', sub:'笑顔だが写真は静かなシーン中心', result:'OD', conf:'mid', note:'表情は踊り子寄りですが、写真傾向はやや内向的。プロフィール文章もあわせて確認を' },
+    ]
+  },
+  { key:'se_photo', branch:'se',
+    text:'写真に写っている内容は？',
+    hint:'戦士タイプかどうか、写真の内容で確認します',
+    choices: [
+      { icon:'💪', title:'ジム・スポーツ・アップの自撮り', sub:'鍛えている・成果を見せる写真、姿勢の良さが目立つ', result:'SE', conf:'high' },
+      { icon:'🏢', title:'仕事関連・経営者交流会っぽい写真', sub:'スーツや名刺交換など、成果・実績を感じさせる', result:'SE', conf:'high' },
+    ]
+  },
+  { key:'ma_photo', branch:'ma',
+    text:'写真に写っている内容は？',
+    hint:'魔法使いタイプかどうか、写真の内容で確認します',
+    choices: [
+      { icon:'🖼', title:'一人旅・風景だけ・横顔や引きの写真', sub:'人が写っていない、または引き気味の構図が多い', result:'MA', conf:'high' },
+      { icon:'📚', title:'趣味（読書・美術館・アニメ等）が中心', sub:'こだわりが伝わる、独自の世界観がある写真', result:'MA', conf:'high' },
+    ]
+  },
+  { key:'so_photo', branch:'so',
+    text:'写真に写っている内容は？',
+    hint:'僧侶タイプかどうか、写真の内容で確認します',
+    choices: [
+      { icon:'🐾', title:'動物・ペット・自然の風景', sub:'癒し系の被写体が多い、穏やかな雰囲気', result:'SO', conf:'high' },
+      { icon:'👥', title:'友達との集合写真が中心', sub:'一人より誰かと一緒の写真が多い、控えめな笑顔', result:'SO', conf:'high' },
+    ]
+  },
+];
+
+let history = []; // {stepKey, choiceIndex, branch}
+let currentStep = 0; // index into STEPS, but branch-aware — we use a pointer system instead
+let currentKey = 'root';
+
+const FLOW = {
+  root: STEPS[0],
+  sun_face: STEPS[1],
+  moon_face: STEPS[2],
+  od_photo: STEPS[3],
+  se_photo: STEPS[4],
+  ma_photo: STEPS[5],
+  so_photo: STEPS[6],
+};
+
+function renderStep(){
+  const step = FLOW[currentKey];
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('qcard').style.display = 'block';
+  document.querySelector('.nav-row').style.display = 'flex';
+
+  document.getElementById('stepLbl').textContent = `STEP ${history.length+1} / ${estimateTotal()}`;
+  document.getElementById('qtext').textContent = step.text;
+  document.getElementById('qhint').textContent = step.hint || '';
+
+  const cc = document.getElementById('choices');
+  cc.innerHTML = '';
+  step.choices.forEach((c, idx) => {
+    const d = document.createElement('div');
+    d.className = 'choice';
+    d.innerHTML = `<span class="cicon">${c.icon}</span><span class="ctext"><b>${c.title}</b><span>${c.sub}</span></span>`;
+    d.onclick = () => selectChoice(c);
+    cc.appendChild(d);
+  });
+
+  document.getElementById('backBtn').disabled = history.length === 0;
+  renderProgress();
+}
+
+function estimateTotal(){
+  // root->face step->photo step = 3 steps typical
+  return history.length < 1 ? 3 : (FLOW[currentKey] && FLOW[currentKey].result !== undefined ? history.length+1 : 3);
+}
+
+function renderProgress(){
+  const p = document.getElementById('progress');
+  const total = 3;
+  p.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i < history.length ? ' done' : (i===history.length ? ' active' : ''));
+    p.appendChild(dot);
+  }
+}
+
+function selectChoice(c){
+  history.push({ key: currentKey });
+  if(c.result){
+    showResult(c.result, c.conf, c.note);
+    return;
+  }
+  currentKey = c.next;
+  renderStep();
+}
+
+function goBack(){
+  if(history.length===0) return;
+  const last = history.pop();
+  currentKey = last.key;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('qcard').style.display = 'block';
+  renderStep();
+}
+
+function restart(){
+  history = [];
+  currentKey = 'root';
+  renderStep();
+}
+
+function showResult(typeCode, conf, note){
+  document.getElementById('qcard').style.display = 'none';
+  document.querySelector('.nav-row').style.display = 'none';
+  const info = TYPE_INFO[typeCode];
+  document.getElementById('rIcon').textContent = info.icon;
+  document.getElementById('rName').textContent = info.name;
+  document.getElementById('rName').style.color = info.color;
+  document.getElementById('rSub').textContent = '写真・表情からの一次診断結果';
+  document.getElementById('rDesc').textContent = info.desc;
+  document.getElementById('rConf').textContent = conf==='high'
+    ? '🎯 確度：高め（表情・写真ともに一致）'
+    : '🌱 確度：仮説段階（' + (note||'追加確認をおすすめします') + '）';
+
+  const traceLines = history.map((h,i)=>`STEP${i+1}: ${FLOW[h.key].text}`).join('<br>');
+  document.getElementById('trace').innerHTML = `<b>診断の道のり</b><br>${traceLines}`;
+
+  document.getElementById('result').style.display = 'block';
+}
+
+restart();
+</script>
+</body>
+</html>
