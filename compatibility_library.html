@@ -13,16 +13,17 @@
   --white:#FFFFFF; --light:#E0E0E0; --muted:#8888AA;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
 body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
-  background:var(--bg);color:var(--light);overflow-x:hidden}
+  background:var(--bg);color:var(--light)}
 
-.app{display:flex;flex-direction:column;min-height:100vh}
+.app{min-height:100vh}
 
 /* header */
 .topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;
-  border-bottom:1px solid #2a2a4a;background:linear-gradient(135deg,#0D0D1A 0%,#1A0D2E 100%);flex-shrink:0}
+  border-bottom:1px solid #2a2a4a;background:linear-gradient(135deg,#0D0D1A 0%,#1A0D2E 100%);
+  position:sticky;top:0;z-index:60}
 .hamburger{font-size:20px;cursor:pointer;color:var(--light);background:none;border:none;padding:4px;line-height:1}
+.topbar .home-link{display:flex;align-items:center;gap:10px;background:none;border:none;cursor:pointer;padding:0;text-align:left}
 .topbar .avatar{width:34px;height:34px;border-radius:50%;background:var(--gold);
   display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .topbar .titles{min-width:0}
@@ -30,12 +31,13 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 .topbar .t-sub{font-size:10.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0}
 
-/* layout */
-.layout{display:flex;flex:1;min-height:0}
+/* layout: ページ全体を通常スクロールさせ、サイドバーだけ画面追従させる */
+.layout{display:flex;align-items:flex-start}
 
 /* sidebar */
 .sidebar{width:140px;flex-shrink:0;border-right:1px solid #2a2a4a;background:var(--card2);
-  padding:10px 6px;overflow-y:auto;transition:margin-left .2s}
+  padding:10px 6px;transition:margin-left .2s;
+  position:sticky;top:57px;max-height:calc(100vh - 57px);overflow-y:auto}
 .sidebar.collapsed{margin-left:-146px}
 .sidebar-label{font-size:10px;color:var(--muted);padding:4px 8px;margin-bottom:4px;letter-spacing:.5px}
 .side-item{font-size:11px;padding:7px 8px;border-radius:8px;background:transparent;
@@ -47,8 +49,16 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 .side-item .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* main */
-.main{flex:1;min-width:0;padding:20px 16px;overflow-y:auto}
+.main{flex:1;min-width:0;padding:20px 16px}
 .main-inner{max-width:600px;margin:0 auto}
+
+/* home（TOP）画面 */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:18px}
+.home-item{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:12px 4px;
+  text-align:center;cursor:pointer}
+.home-item:hover{border-color:var(--gold)}
+.home-item .icon{font-size:24px}
+.home-item .name{font-size:10.5px;margin-top:4px}
 
 .welcome{text-align:center;margin-bottom:18px}
 .welcome .w-icon{font-size:44px}
@@ -86,7 +96,7 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 @media(min-width:900px){
   .with-sticky{display:flex;gap:20px;align-items:flex-start}
   .with-sticky .art-col{flex:1;min-width:0}
-  .sticky-toc{display:block;width:170px;flex-shrink:0;position:sticky;top:20px;
+  .sticky-toc{display:block;width:170px;flex-shrink:0;position:sticky;top:73px;
     background:var(--card2);border:1px solid #2a2a4a;border-radius:10px;padding:10px}
   .sticky-toc .subtoc-heading{padding:2px 2px 6px}
 }
@@ -130,11 +140,13 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 <div class="app">
   <div class="topbar">
     <button class="hamburger" onclick="toggleSidebar()">☰</button>
-    <div class="avatar" id="topAvatar">🔮</div>
-    <div class="titles">
-      <div class="t-title">相性ライブラリ</div>
-      <div class="t-sub"><span class="dot"></span>ジョニー執筆・16タイプの本物の相性解説</div>
-    </div>
+    <button class="home-link" onclick="goHome()" title="TOPに戻る">
+      <div class="avatar" id="topAvatar">🔮</div>
+      <div class="titles">
+        <div class="t-title">相性ライブラリ</div>
+        <div class="t-sub"><span class="dot"></span>ジョニー執筆・16タイプの本物の相性解説</div>
+      </div>
+    </button>
   </div>
 
   <div class="layout">
@@ -148,6 +160,18 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
         <div class="loading" id="loading">読み込み中...</div>
 
         <div id="mainUI" style="display:none">
+          <div id="homeView">
+            <div class="welcome">
+              <div class="w-icon">📚</div>
+              <div class="w-title">相性ライブラリへようこそ</div>
+              <div class="w-sub">気になるタイプをタップして相性を調べよう</div>
+            </div>
+            <div class="home-grid" id="homeGrid"></div>
+            <div class="stats-line" id="statsBarHome"></div>
+            <button class="random-btn" onclick="randomEntry()">🎲 ランダムに読む</button>
+          </div>
+
+          <div id="typeView" style="display:none">
           <div class="welcome">
             <div class="w-icon" id="welcomeIcon">⭐</div>
             <div class="w-title" id="welcomeTitle">占い師タイプ の相性</div>
@@ -193,6 +217,7 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
               <a class="fallback-link" href="player_encyclopedia.html" target="_blank">🔮 仮の自動診断結果を見る（プレイヤー図鑑）</a>
             </div>
           </div>
+          </div>
         </div>
       </div>
     </div>
@@ -210,7 +235,7 @@ const ICON_BY_NAME = Object.fromEntries(TYPES.map(t=>[t.code,t.icon]));
 
 let LIBRARY = [];
 let PAIR_INDEX = {};
-let selA = TYPES.find(t=>t.code==='占い師');
+let selA = null; // null = TOP(HOME)画面
 let selB = null;
 
 function pairKey(a,b){ return [a,b].sort().join('|'); }
@@ -223,9 +248,12 @@ fetch('data/compat_library.json')
     document.getElementById('loading').style.display = 'none';
     document.getElementById('mainUI').style.display = 'block';
     renderSidebar();
-    renderWelcome();
+    renderHomeGrid();
     const total = TYPES.length*(TYPES.length+1)/2;
-    document.getElementById('statsBar').textContent = `現在 ${data.length} / ${total} 通り収録済み`;
+    const statsText = `現在 ${data.length} / ${total} 通り収録済み`;
+    document.getElementById('statsBarHome').textContent = statsText;
+    document.getElementById('statsBar').textContent = statsText;
+    goHome();
   })
   .catch(err => {
     document.getElementById('loading').textContent = '読み込みに失敗しました。data/compat_library.json を確認してください。';
@@ -236,14 +264,47 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('collapsed');
 }
 
+function goHome(){
+  selA = null;
+  selB = null;
+  document.getElementById('topAvatar').textContent = '🔮';
+  document.getElementById('homeView').style.display = 'block';
+  document.getElementById('typeView').style.display = 'none';
+  renderSidebar();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderHomeGrid(){
+  const grid = document.getElementById('homeGrid');
+  grid.innerHTML = '';
+  TYPES.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'home-item';
+    d.innerHTML = `<div class="icon">${t.icon}</div><div class="name">${t.code}</div>`;
+    d.onclick = () => selectType(t);
+    grid.appendChild(d);
+  });
+}
+
+function selectType(t){
+  selA = t;
+  selB = null;
+  document.getElementById('homeView').style.display = 'none';
+  document.getElementById('typeView').style.display = 'block';
+  renderSidebar();
+  renderWelcome();
+  hideResult();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
 function renderSidebar(){
   const list = document.getElementById('sideList');
   list.innerHTML = '';
   TYPES.forEach(t => {
     const d = document.createElement('div');
-    d.className = 'side-item' + (t.code===selA.code ? ' active' : '');
+    d.className = 'side-item' + (selA && t.code===selA.code ? ' active' : '');
     d.innerHTML = `<span class="icon">${t.icon}</span><span class="name">${t.code}</span>`;
-    d.onclick = () => { selA = t; selB = null; renderSidebar(); renderWelcome(); hideResult(); };
+    d.onclick = () => selectType(t);
     list.appendChild(d);
   });
 }
@@ -387,6 +448,8 @@ function randomEntry(){
   const entry = LIBRARY[Math.floor(Math.random()*LIBRARY.length)];
   selA = TYPES.find(t=>t.code===entry.typeA) || {code:entry.typeA, icon:'❓'};
   selB = TYPES.find(t=>t.code===entry.typeB) || {code:entry.typeB, icon:'❓'};
+  document.getElementById('homeView').style.display = 'none';
+  document.getElementById('typeView').style.display = 'block';
   renderSidebar();
   renderWelcome();
   showEntry();
