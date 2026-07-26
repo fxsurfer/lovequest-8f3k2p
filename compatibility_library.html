@@ -55,12 +55,41 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 .welcome .w-title{font-size:16px;font-weight:900;color:var(--white);margin-top:6px}
 .welcome .w-sub{font-size:11.5px;color:var(--muted);margin-top:3px}
 
-.partner-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:18px}
-.partner-tag{background:var(--card);border:1.5px solid var(--green);border-radius:16px;
-  padding:6px 12px;font-size:11.5px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:.15s}
-.partner-tag:hover{border-color:var(--gold);transform:translateY(-1px)}
-.partner-tag.pending{border-color:#444;opacity:.5;cursor:default}
-.partner-tag.pending:hover{transform:none}
+/* 番号付き目次(パートナー一覧) */
+.toc-box{background:var(--card);border:1px solid #2a2a4a;border-radius:12px;padding:10px 6px;margin-bottom:16px}
+.toc-heading{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);
+  padding:4px 10px 8px;border-bottom:1px solid #2a2a4a;margin-bottom:4px}
+.toc-list{list-style:none}
+.toc-item{display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-radius:8px;
+  cursor:pointer;font-size:12.5px}
+.toc-item:hover{background:var(--card2)}
+.toc-item.pending{opacity:.4;cursor:default}
+.toc-item .toc-num{color:var(--gold);font-weight:900;flex-shrink:0;min-width:16px}
+.toc-item .toc-icon{flex-shrink:0}
+.toc-item .toc-name{flex:1}
+.toc-item .toc-mark{font-size:10px;color:var(--muted);flex-shrink:0}
+.toc-more{display:block;margin:6px auto 2px;font-size:11px;padding:5px 16px;border-radius:14px;
+  border:1px solid #444;background:transparent;color:var(--muted);cursor:pointer}
+.toc-more:hover{border-color:var(--gold);color:var(--gold)}
+
+/* 記事内サブ目次(1-1, 1-2...) */
+.subtoc-box{background:var(--card2);border:1px solid #2a2a4a;border-radius:10px;
+  padding:8px 10px;margin-bottom:12px}
+.subtoc-heading{font-size:10.5px;color:var(--muted);margin-bottom:4px;padding:2px 4px}
+.subtoc-item{font-size:11.5px;padding:5px 6px;border-radius:6px;cursor:pointer;
+  display:flex;gap:6px;color:var(--light)}
+.subtoc-item:hover{background:var(--card);color:var(--gold)}
+.subtoc-item .st-num{color:var(--gold);font-weight:700;flex-shrink:0}
+
+/* PC: 右にスティッキーな追従ミニ目次 */
+.sticky-toc{display:none}
+@media(min-width:900px){
+  .with-sticky{display:flex;gap:20px;align-items:flex-start}
+  .with-sticky .art-col{flex:1;min-width:0}
+  .sticky-toc{display:block;width:170px;flex-shrink:0;position:sticky;top:20px;
+    background:var(--card2);border:1px solid #2a2a4a;border-radius:10px;padding:10px}
+  .sticky-toc .subtoc-heading{padding:2px 2px 6px}
+}
 
 .stats-line{text-align:center;font-size:10.5px;color:var(--muted);margin-bottom:14px}
 .random-btn{display:block;margin:0 auto 18px;font-size:11.5px;padding:6px 16px;border-radius:16px;
@@ -125,17 +154,33 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
             <div class="w-sub">気になる相手のタイプを選んでね</div>
           </div>
 
-          <div class="partner-row" id="partnerRow"></div>
+          <div class="toc-box">
+            <div class="toc-heading">📑 目次 — <span id="tocOwnerName">占い師</span>タイプとの相性一覧</div>
+            <div class="toc-list" id="partnerRow"></div>
+            <button class="toc-more" id="tocMoreBtn" onclick="toggleTocMore()" style="display:none">もっと見る</button>
+          </div>
           <div class="stats-line" id="statsBar"></div>
           <button class="random-btn" onclick="randomEntry()">🎲 ランダムに読む</button>
 
           <div id="article" style="display:none">
-            <div class="bubble">
-              <div class="b-avatar" id="artAvatar"></div>
-              <div class="b-body">
-                <div class="b-title" id="artTitle"></div>
-                <div class="art-body" id="artBody"></div>
-                <div class="source-tag" id="artSource"></div>
+            <div class="with-sticky">
+              <div class="art-col">
+                <div class="subtoc-box" id="subtocBox" style="display:none">
+                  <div class="subtoc-heading">この記事の目次</div>
+                  <div id="subtocList"></div>
+                </div>
+                <div class="bubble">
+                  <div class="b-avatar" id="artAvatar"></div>
+                  <div class="b-body">
+                    <div class="b-title" id="artTitle"></div>
+                    <div class="art-body" id="artBody"></div>
+                    <div class="source-tag" id="artSource"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="sticky-toc" id="stickyToc" style="display:none">
+                <div class="subtoc-heading">目次</div>
+                <div id="stickyTocList"></div>
               </div>
             </div>
           </div>
@@ -203,24 +248,50 @@ function renderSidebar(){
   });
 }
 
+const TOC_COLLAPSE_LIMIT = 8;
+let tocExpanded = false;
+
 function renderWelcome(){
   document.getElementById('welcomeIcon').textContent = selA.icon;
   document.getElementById('topAvatar').textContent = selA.icon;
   document.getElementById('welcomeTitle').textContent = `${selA.code}タイプ の相性`;
+  document.getElementById('tocOwnerName').textContent = selA.code;
+  tocExpanded = false;
+  renderTocList();
+}
 
+function renderTocList(){
+  const partners = TYPES.filter(t => t.code !== selA.code);
   const row = document.getElementById('partnerRow');
+  const moreBtn = document.getElementById('tocMoreBtn');
   row.innerHTML = '';
-  TYPES.forEach(t => {
+  const shown = tocExpanded ? partners : partners.slice(0, TOC_COLLAPSE_LIMIT);
+
+  shown.forEach((t, idx) => {
     const key = pairKey(selA.code, t.code);
     const exists = !!PAIR_INDEX[key];
-    const tag = document.createElement('div');
-    tag.className = 'partner-tag' + (exists ? '' : ' pending');
-    tag.innerHTML = `<span>${t.icon}</span><span>${t.code}</span><span>${exists?'✓':'…'}</span>`;
+    const item = document.createElement('div');
+    item.className = 'toc-item' + (exists ? '' : ' pending');
+    item.innerHTML = `<span class="toc-num">${idx+1}</span><span class="toc-icon">${t.icon}</span>` +
+      `<span class="toc-name">${selA.code} × ${t.code} タイプの相性</span>` +
+      `<span class="toc-mark">${exists?'✓':'執筆中'}</span>`;
     if(exists){
-      tag.onclick = () => { selB = t; showEntry(); };
+      item.onclick = () => { selB = t; showEntry(); };
     }
-    row.appendChild(tag);
+    row.appendChild(item);
   });
+
+  if(partners.length > TOC_COLLAPSE_LIMIT){
+    moreBtn.style.display = 'block';
+    moreBtn.textContent = tocExpanded ? '▲ 閉じる' : `… もっと見る（残り${partners.length - TOC_COLLAPSE_LIMIT}件）`;
+  } else {
+    moreBtn.style.display = 'none';
+  }
+}
+
+function toggleTocMore(){
+  tocExpanded = !tocExpanded;
+  renderTocList();
 }
 
 const HEAD_KEYWORDS = ['ポイント','相性','あるある','まとめ','話し方','注意するべき','恋愛・結婚','友達としての','家族としての'];
@@ -232,17 +303,22 @@ function looksLikeHeading(line){
 function renderContent(content){
   const paras = content.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
   let html = '';
+  let headIdx = 0;
+  const headings = [];
   paras.forEach(p => {
     const lines = p.split('\n').map(l=>l.trim()).filter(Boolean);
     lines.forEach(line => {
       if(looksLikeHeading(line)){
-        html += `<div class="sec-h">${escapeHtml(line)}</div>`;
+        headIdx++;
+        const anchorId = `sec-${headIdx}`;
+        headings.push({id:anchorId, text:line});
+        html += `<div class="sec-h" id="${anchorId}">${escapeHtml(line)}</div>`;
       } else {
         html += `<p>${escapeHtml(line)}</p>`;
       }
     });
   });
-  return html;
+  return { html, headings };
 }
 function escapeHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -268,9 +344,43 @@ function showEntry(){
   document.getElementById('article').style.display = 'block';
   document.getElementById('artAvatar').textContent = ICON_BY_NAME[entry.typeB] || '❓';
   document.getElementById('artTitle').textContent = `${entry.typeA} × ${entry.typeB}`;
-  document.getElementById('artBody').innerHTML = renderContent(entry.content);
+  const { html, headings } = renderContent(entry.content);
+  document.getElementById('artBody').innerHTML = html;
   document.getElementById('artSource').textContent = `出典: 恋愛式学 継承マスター資料（${entry.source}）`;
+  renderSubToc(headings);
   document.getElementById('article').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function renderSubToc(headings){
+  const subtocBox = document.getElementById('subtocBox');
+  const stickyToc = document.getElementById('stickyToc');
+  const subtocList = document.getElementById('subtocList');
+  const stickyTocList = document.getElementById('stickyTocList');
+
+  if(!headings.length){
+    subtocBox.style.display = 'none';
+    stickyToc.style.display = 'none';
+    return;
+  }
+
+  const buildItems = () => headings.map((h, i) => {
+    const item = document.createElement('div');
+    item.className = 'subtoc-item';
+    item.innerHTML = `<span class="st-num">${i+1}</span><span>${escapeHtml(h.text)}</span>`;
+    item.onclick = () => {
+      const target = document.getElementById(h.id);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    };
+    return item;
+  });
+
+  subtocList.innerHTML = '';
+  buildItems().forEach(el => subtocList.appendChild(el));
+  subtocBox.style.display = 'block';
+
+  stickyTocList.innerHTML = '';
+  buildItems().forEach(el => stickyTocList.appendChild(el));
+  stickyToc.style.display = 'block';
 }
 
 function randomEntry(){
