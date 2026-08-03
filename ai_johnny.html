@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>AIジョニー | LOVEQUESTプレイヤー図鑑</title>
+<title>AIジョニー</title>
 <style>
 :root{
   --bg:#0D0D1A; --card:#1A1A35; --card2:#12122A;
@@ -135,10 +135,6 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
           <div class="w-sub">気になる相手の写真・動画・プロフィール文章をドラッグ&ドロップすると、<br>タイプ診断・相性・デートプランを分析します</div>
         </div>
 
-        <div style="text-align:center">
-          <div class="demo-badge">⚠️ デモ版：現在はサンプル応答です（本番API未接続）</div>
-        </div>
-
         <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
           <div class="dz-icon">📥</div>
           <div class="dz-text">写真・動画をドラッグ&ドロップ、またはタップして選択</div>
@@ -234,17 +230,107 @@ function escapeHtml(s){
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-const DEMO_RESULT = {
-  title: '診断結果（サンプル）',
-  sections: [
-    { h: '🔮 タイプ診断', body: 'アップロードされた情報から、<b>占い師タイプ（魔法使い×僧侶）</b>の可能性が高いと見立てました。表情はクールですが、優しい空気をまとっている点が特徴です。' },
-    { h: '💞 相性の見立て', body: 'あなたのタイプとの相性は良好です。ただし、相手は「察してほしい」タイプなので、こちらから積極的に気持ちを言葉にすることが関係を深めるカギになります。' },
-    { h: '🍽 おすすめデートプラン', body: '静かなカフェ、神社、美術館など、落ち着いた雰囲気の場所がおすすめです。初回はランチ＋短時間で様子を見ましょう。' },
-    { h: '🛡 攻略のヒント', body: '「今日はどう感じた？」など、感情を尋ねる一言を意識してみてください。安心できる空気を作れると、少しずつ心を開いてくれるはずです。' },
-  ]
-};
+function fileToBase64(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
-function runAnalysis(){
+// 動画からフレームを数枚切り出してJPEGのBase64にする
+function extractVideoFrames(file, frameCount = 3){
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.src = URL.createObjectURL(file);
+    video.muted = true;
+    const frames = [];
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      const times = Array.from({length: frameCount}, (_, i) => (duration * (i + 1)) / (frameCount + 1));
+      let idx = 0;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const captureNext = () => {
+        if(idx >= times.length){
+          URL.revokeObjectURL(video.src);
+          resolve(frames);
+          return;
+        }
+        video.currentTime = times[idx];
+      };
+      video.onseeked = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        frames.push(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+        idx++;
+        captureNext();
+      };
+      captureNext();
+    };
+    video.onerror = reject;
+  });
+}
+
+// **bold** や `code` などインラインのMarkdown記法をHTMLに変換
+function renderInline(s){
+  let out = escapeHtml(s);
+  out = out.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  out = out.replace(/`(.+?)`/g, '<code>$1</code>');
+  return out;
+}
+
+// AIの返答(Markdown想定)を見出し・箇条書き・区切り線・段落に分けてHTML化
+function renderResultText(text){
+  const lines = text.split('\n').map(l => l.trim());
+  let html = '';
+  let listBuffer = [];
+
+  const flushList = () => {
+    if(listBuffer.length){
+      html += '<ul style="margin:0 0 9px 18px;padding:0">' +
+        listBuffer.map(li => `<li style="margin-bottom:4px">${renderInline(li)}</li>`).join('') +
+        '</ul>';
+      listBuffer = [];
+    }
+  };
+
+  lines.forEach(line => {
+    if(line === ''){
+      flushList();
+      return;
+    }
+    if(/^-{3,}$/.test(line)){
+      flushList();
+      html += '<div style="border-top:1px solid #2a2a4a;margin:12px 0"></div>';
+      return;
+    }
+    const headingMatch = line.match(/^#{1,3}\s*(.+)$/);
+    if(headingMatch){
+      flushList();
+      html += `<div class="sec-h">${renderInline(headingMatch[1])}</div>`;
+      return;
+    }
+    const listMatch = line.match(/^[-・]\s+(.+)$/);
+    if(listMatch){
+      listBuffer.push(listMatch[1]);
+      return;
+    }
+    flushList();
+    if(/^(🔮|💞|🍽|🛡)/.test(line)){
+      html += `<div class="sec-h">${renderInline(line)}</div>`;
+    } else {
+      html += `<p>${renderInline(line)}</p>`;
+    }
+  });
+  flushList();
+  return html;
+}
+
+async function runAnalysis(){
   const note = document.getElementById('textNote').value.trim();
   const btn = document.getElementById('analyzeBtn');
   btn.disabled = true;
@@ -263,19 +349,43 @@ function runAnalysis(){
   log.appendChild(typingBubble);
   typingBubble.scrollIntoView({behavior:'smooth', block:'end'});
 
-  setTimeout(() => {
+  try {
+    const images = [];
+    for(const f of uploadedFiles){
+      if(f.type.startsWith('image/')){
+        images.push({ media_type: f.type, data: await fileToBase64(f) });
+      } else if(f.type.startsWith('video/')){
+        const frames = await extractVideoFrames(f, 3);
+        frames.forEach(data => images.push({ media_type: 'image/jpeg', data }));
+      }
+    }
+
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ images, note }),
+    });
+    const data = await res.json();
+
     typingBubble.remove();
     const resultBubble = document.createElement('div');
     resultBubble.className = 'bubble';
-    let bodyHtml = '';
-    DEMO_RESULT.sections.forEach(s => {
-      bodyHtml += `<div class="sec-h">${s.h}</div><p>${s.body}</p>`;
-    });
-    resultBubble.innerHTML = `<div class="b-avatar">🧠</div><div class="b-body">${bodyHtml}</div>`;
+    if(!res.ok || data.error){
+      resultBubble.innerHTML = `<div class="b-avatar">⚠️</div><div class="b-body"><p style="color:var(--red)">${escapeHtml(data.error || '分析に失敗しました')}</p></div>`;
+    } else {
+      resultBubble.innerHTML = `<div class="b-avatar">🧠</div><div class="b-body">${renderResultText(data.result)}</div>`;
+    }
     log.appendChild(resultBubble);
     resultBubble.scrollIntoView({behavior:'smooth', block:'start'});
+  } catch (err) {
+    typingBubble.remove();
+    const errBubble = document.createElement('div');
+    errBubble.className = 'bubble';
+    errBubble.innerHTML = `<div class="b-avatar">⚠️</div><div class="b-body"><p style="color:var(--red)">通信エラー: ${escapeHtml(err.message)}</p></div>`;
+    log.appendChild(errBubble);
+  } finally {
     btn.disabled = false;
-  }, 1400);
+  }
 }
 
 function resetChat(){
