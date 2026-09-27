@@ -6,7 +6,11 @@ import { readFile, writeFile } from 'node:fs/promises';
 const OUT = 'data/taiken_events.json';
 const BASE = 'https://www.walkerplus.com';
 const MONTHS_AHEAD = 4;      // 今月を含めて何か月先まで
-const PAGES_PER_MONTH = 3;   // 1ページ10件 → 月あたり最大30件
+const PAGES_PER_MONTH = 3;   // 1ページ10件 → カテゴリ・月あたり最大30件
+const CATEGORIES = [
+  { code: 'eg0120', label: '体験イベント・アクティビティ' },
+  { code: 'eg0107', label: '美術展・博物展' },
+];
 const jst = new Date(Date.now() + 9 * 3600 * 1000);
 const todayStr = jst.toISOString().slice(0, 10);
 
@@ -40,6 +44,7 @@ const RULES = [
   [/プラネタリウム|星空/, 'プラネタリウム', '並んで静かに楽しめる鉄板。上映後の感想シェアが会話のきっかけに。'],
   [/イルミネーション|ライトアップ|夜景|ナイト/, '夜', '夕方〜夜の待ち合わせと相性◎。防寒と歩きやすさを一言気遣うと好印象。'],
   [/ワークショップ|体験教室|手作り|陶芸|クラフト/, 'ワークショップ', '一緒に作る時間が会話を生む。トーク力に自信がなくても成立しやすい。'],
+  [/美術館|博物館|美術展|博物展/, '美術館', '静かに並んで鑑賞でき、感想の語り合いが自然な会話になる王道デート。'],
   [/展|ミュージアム|アート|美術/, '展示', '感想を語り合う価値観トークに発展しやすい。相手の好みを事前に確認して誘う。'],
   [/没入|イマーシブ|VR|デジタルアート|チームラボ/, '没入型', '非日常の刺激パート。終了後は落ち着いた店で余韻を共有すると好意に変換されやすい。'],
   [/マルシェ|フェス|グルメ|フード|食べ/, '食', '食の好みは誘いやすい共通点。気になるお店を「一緒に行きませんか」と乗せて。'],
@@ -75,19 +80,21 @@ function parseList(html) {
 }
 
 const byId = new Map();
-for (let i = 0; i < MONTHS_AHEAD; i++) {
-  const d = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth() + i, 1));
-  const m = d.getUTCMonth() + 1;
-  for (let p = 1; p <= PAGES_PER_MONTH; p++) {
-    // 今月は月別ページが存在しないため、今日の日付(MMDD)の一覧を使う(開催中のイベントが一覧に出る)
-    const seg = i === 0 ? todayStr.slice(5).replace('-', '') : String(m);
-    const url = `${BASE}/event_list/${seg}/ar0313/eg0120/${p === 1 ? '' : p + '.html'}`;
-    try {
-      const list = parseList(await get(url));
-      list.forEach(e => byId.has(e.id) || byId.set(e.id, e));
-      if (list.length < 10) break;
-    } catch (e) { console.error('取得失敗(スキップ):', e.message); break; }
-    await sleep(1500); // 先方サーバーへの負荷を避ける
+for (const cat of CATEGORIES) {
+  for (let i = 0; i < MONTHS_AHEAD; i++) {
+    const d = new Date(Date.UTC(jst.getUTCFullYear(), jst.getUTCMonth() + i, 1));
+    const m = d.getUTCMonth() + 1;
+    for (let p = 1; p <= PAGES_PER_MONTH; p++) {
+      // 今月は月別ページが存在しないため、今日の日付(MMDD)の一覧を使う(開催中のイベントが一覧に出る)
+      const seg = i === 0 ? todayStr.slice(5).replace('-', '') : String(m);
+      const url = `${BASE}/event_list/${seg}/ar0313/${cat.code}/${p === 1 ? '' : p + '.html'}`;
+      try {
+        const list = parseList(await get(url));
+        list.forEach(e => byId.has(e.id) || byId.set(e.id, { ...e, category: cat.label }));
+        if (list.length < 10) break;
+      } catch (e) { console.error('取得失敗(スキップ):', cat.label, e.message); break; }
+      await sleep(1500); // 先方サーバーへの負荷を避ける
+    }
   }
 }
 

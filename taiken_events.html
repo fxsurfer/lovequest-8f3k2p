@@ -22,6 +22,11 @@ header p{font-size:11.5px;color:var(--muted);margin-top:4px}
 .tab{flex-shrink:0;padding:8px 14px;border-radius:18px;border:1px solid #2a2a4a;background:var(--card);
   color:var(--light);font-size:12.5px;cursor:pointer;font-family:inherit}
 .tab.on{background:var(--gold);color:#0D0D1A;border-color:var(--gold);font-weight:900}
+.search{margin:10px 0}
+.search input{width:100%;padding:9px 12px;border-radius:12px;border:1px solid #2a2a4a;background:var(--card);
+  color:var(--light);font-size:13px;font-family:inherit}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{outline:none;border-color:var(--gold)}
 .tags{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
 .tag{padding:4px 10px;border-radius:14px;border:1px solid #2a2a4a;background:var(--card2);color:var(--muted);
   font-size:11px;cursor:pointer;font-family:inherit}
@@ -51,6 +56,7 @@ footer{text-align:center;font-size:11px;color:var(--muted);padding:16px}
 </header>
 <div class="wrap">
   <div class="tabs" id="tabs"></div>
+  <div class="search"><input type="text" id="q" placeholder="🔍 キーワードで絞り込み（例: 謎解き／上野／夜景）" oninput="setQuery(this.value)"></div>
   <div class="tags" id="tags"></div>
   <div class="meta" id="meta"></div>
   <div class="list" id="list"></div>
@@ -61,6 +67,7 @@ const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 let DATA = { events: [] };
 let curMonth = null;   // 'YYYY-MM'
 let curTag = '';
+let curQuery = '';
 
 const today = new Date(); today.setHours(0,0,0,0);
 const ymd = d => new Date(d + 'T00:00:00');
@@ -103,7 +110,9 @@ function render(){
   const mStart = MONTHS.find(m => monthKey(m) === curMonth) || MONTHS[0];
   const inMonth = DATA.events.filter(e => overlaps(e, mStart));
   renderTabs(); renderTags(inMonth);
-  const shown = curTag ? inMonth.filter(e => (e.tags||[]).includes(curTag)) : inMonth;
+  let shown = curTag ? inMonth.filter(e => (e.tags||[]).includes(curTag)) : inMonth;
+  const q = curQuery.trim().toLowerCase();
+  if(q) shown = shown.filter(e => [e.title, e.area, e.summary, ...(e.tags||[])].join(' ').toLowerCase().includes(q));
   shown.sort((a,b) => (a.end||'9999') < (b.end||'9999') ? -1 : 1);
   document.getElementById('meta').textContent =
     `${mStart.getMonth()+1}月に楽しめるイベント: ${shown.length}件` + (DATA.updatedAt ? `／最終更新 ${DATA.updatedAt}` : '');
@@ -119,10 +128,11 @@ function render(){
       <div class="chips">${(e.tags||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div>
       <a class="go" href="${esc(e.url)}" target="_blank" rel="noopener">詳細を見る（${esc(e.source||'公式')}）→</a>
     </div>`;
-  }).join('') : '<div class="empty">この月に該当するイベントはまだありません。</div>';
+  }).join('') : `<div class="empty">${q || curTag ? '条件に一致するイベントが見つかりませんでした。' : 'この月に該当するイベントはまだありません。'}</div>`;
 }
 function setMonth(k){ curMonth = k; curTag = ''; render(); }
 function setTag(t){ curTag = t; render(); }
+function setQuery(v){ curQuery = v; render(); }
 
 curMonth = monthKey(MONTHS[0]);
 fetch('data/taiken_events.json?t=' + Date.now())
