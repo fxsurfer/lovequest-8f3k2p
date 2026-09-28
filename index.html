@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>LOVEQUEST MASTERS | RPGダッシュボード</title>
+<link rel="icon" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/icon.png">
 <style>
 :root{
   --bg:#0D0D1A; --card:#1A1A35; --card2:#12122A;
@@ -17,6 +19,11 @@
 body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
   background:var(--bg);color:var(--light);min-height:100vh;overflow-x:hidden}
 
+.portal-back{flex-shrink:0;display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);
+  border:1px solid #3a3a5a;border-radius:20px;padding:7px 14px;
+  font-size:11.5px;color:var(--light);text-decoration:none}
+.portal-back:hover{border-color:var(--gold);color:var(--gold)}
+
 /* ─── MODAL ─── */
 #modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;
   display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
@@ -26,7 +33,8 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 .av-card{background:var(--card);border:1.5px solid #333;border-radius:10px;
   padding:10px 6px;text-align:center;cursor:pointer;transition:.15s}
 .av-card:hover{transform:translateY(-3px);border-color:var(--gold)}
-.av-card .av-icon{font-size:28px;line-height:1.1}
+.av-card .av-icon{display:block;margin:0 auto;width:38px;height:38px;object-fit:contain;border-radius:8px}
+.av-card .av-icon.icon-fallback{font-size:28px;line-height:1.1;width:auto;height:auto}
 .av-card .av-name{font-size:11px;font-weight:700;margin-top:5px;color:var(--white)}
 .av-card.se{border-color:#333} .av-card.se:hover{border-color:var(--se)}
 .av-card.od{border-color:#333} .av-card.od:hover{border-color:var(--od)}
@@ -36,24 +44,36 @@ body{font-family:'Yu Gothic UI','Hiragino Sans','Meiryo',sans-serif;
 /* ─── HEADER ─── */
 header{background:linear-gradient(135deg,#0D0D1A 0%,#1A0D2E 100%);
   border-bottom:1px solid #2a2a4a;padding:10px 16px;
-  display:flex;align-items:center;justify-content:space-between}
-.logo{font-size:18px;font-weight:900;letter-spacing:2px;color:var(--gold)}
+  display:flex;align-items:center}
+.hdr-side{flex:1;display:flex;align-items:center;gap:8px}
+.hdr-side.right{justify-content:flex-end}
+.logo{flex-shrink:0;font-size:18px;font-weight:900;letter-spacing:2px;color:var(--gold);white-space:nowrap}
 .logo span{color:var(--white)}
-.hdr-right{display:flex;gap:8px;align-items:center}
-.demo-btn{font-size:11px;padding:5px 10px;border-radius:8px;
-  border:1px solid var(--purple);background:transparent;color:var(--purple);cursor:pointer}
-.demo-btn:hover{background:var(--purple);color:var(--white)}
-.reset-btn{font-size:11px;padding:5px 10px;border-radius:8px;
-  border:1px solid #444;background:transparent;color:var(--muted);cursor:pointer}
+.hdr-right{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.reset-btn,.save-btn,.load-btn{flex-shrink:0;white-space:nowrap;font-size:11px;
+  padding:5px 10px;border-radius:8px;background:transparent;cursor:pointer;
+  min-width:84px;text-align:center}
+.reset-btn{border:1px solid #444;color:var(--muted)}
 .reset-btn:hover{background:#333;color:var(--white)}
+.save-btn{border:1px solid var(--gold);color:var(--gold)}
+.save-btn:hover{background:var(--gold);color:var(--bg)}
+.load-btn{border:1px solid var(--blue);color:var(--blue)}
+.load-btn:hover{background:var(--blue);color:var(--white)}
 
 /* ─── LAYOUT ─── */
-main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
+main{display:grid;grid-template-columns:180px 1fr 280px;gap:12px;
   padding:12px;max-width:1100px;margin:0 auto}
+.left-col{display:flex;flex-direction:column;gap:12px;width:100%;max-width:180px}
+.left-col > .panel{width:100%;box-sizing:border-box}
 @media(max-width:860px){main{grid-template-columns:1fr 1fr}
   #quest-panel{grid-column:1/-1}}
 @media(max-width:540px){main{grid-template-columns:1fr}
-  #quest-panel{grid-column:auto}}
+  #quest-panel{grid-column:auto}
+  .left-col{max-width:none;margin:0}}
+@media(max-width:600px){
+  .portal-back{padding:6px 10px;font-size:10px}
+  .portal-back .pb-txt{display:none}
+}
 
 /* ─── PANEL ─── */
 .panel{background:var(--card);border:1px solid #2a2a4a;border-radius:14px;
@@ -61,7 +81,8 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
 
 /* ─── AVATAR PANEL ─── */
 #avatar-panel{text-align:center}
-.av-display{font-size:62px;line-height:1;margin:8px 0}
+.av-display{width:88px;height:88px;object-fit:contain;border-radius:14px;margin:8px auto;display:block}
+.av-display.icon-fallback{font-size:62px;line-height:1;width:auto;height:auto}
 .av-title{font-size:16px;font-weight:900;color:var(--gold)}
 .av-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .change-btn{font-size:11px;padding:4px 10px;border-radius:8px;margin-top:8px;
@@ -76,6 +97,20 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
 .xp-bar-fill{height:100%;border-radius:4px;background:var(--purple);transition:width .5s ease}
 .xp-txt{font-size:10px;color:var(--muted);margin-top:3px;text-align:right}
 
+/* ─── COMMAND PANEL（RPGのコマンドウィンドウ風） ─── */
+#command-panel h3{font-size:13px;font-weight:700;color:var(--white);margin-bottom:10px}
+.cmd-item{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;
+  border:1.5px solid #3a3a5a;border-radius:8px;background:var(--card2);
+  text-decoration:none;color:var(--light);cursor:pointer;transition:.12s}
+.cmd-item:hover{border-color:var(--gold);background:#1e1e40}
+.cmd-item:hover .cmd-arrow{color:var(--gold);transform:translateX(2px)}
+.cmd-arrow{color:var(--muted);font-size:11px;flex-shrink:0;transition:.12s}
+.cmd-text{font-size:12.5px;font-weight:700;color:var(--white)}
+.cmd-sub{display:block;font-size:10px;font-weight:400;color:var(--muted);margin-top:2px}
+.cmd-item-disabled{cursor:default;opacity:.55}
+.cmd-item-disabled:hover{border-color:#3a3a5a;background:var(--card2)}
+.cmd-item-disabled:hover .cmd-arrow{color:var(--muted);transform:none}
+
 /* ─── STATS ─── */
 #stats-panel h3{font-size:13px;font-weight:700;color:var(--white);margin-bottom:12px}
 .stat-row{margin-bottom:14px}
@@ -88,7 +123,28 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
 .adj-btn{font-size:10px;padding:2px 7px;border-radius:5px;border:1px solid #444;
   background:transparent;color:var(--muted);cursor:pointer;transition:.1s}
 .adj-btn:hover{background:#333;color:var(--white)}
+.adj-btn-mini{font-size:9px;padding:0 4px;margin:0 2px}
+.xp-adj{flex-direction:column;align-items:flex-end;gap:2px}
 .stat-desc{font-size:10px;color:var(--muted);margin-top:2px}
+
+.radar-wrap{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.analysis-row{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #2a2a4a}
+.radar-svg{width:100%;height:auto;display:block;max-width:320px;margin:0 auto}
+.radar-legend{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.radar-legend-row{display:flex;align-items:center;gap:8px}
+.radar-legend-row .stat-name{flex:1}
+.radar-legend-row .stat-adj{margin-top:0;display:flex;align-items:center;gap:6px}
+.derived-note{font-size:10px;color:var(--muted);font-style:italic}
+.impass-count{font-size:10px;color:var(--muted)}
+.stats-sub-heading{font-size:11px;color:var(--muted);font-weight:700;margin:16px 0 10px;letter-spacing:.5px}
+.manual-list{display:flex;flex-direction:column;gap:6px}
+.manual-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--light);
+  padding:6px 8px;border-radius:8px;border:1px solid #2a2a4a;background:var(--card2);cursor:pointer}
+.manual-row.done{border-color:var(--green);color:var(--green)}
+.manual-row input{flex-shrink:0}
+.manual-name{flex:1}
+.manual-target{font-size:10px;color:var(--muted)}
+.manual-row.done .manual-target{color:var(--green)}
 
 /* ─── QUESTS ─── */
 #quest-panel h3{font-size:13px;font-weight:700;color:var(--white);margin-bottom:10px}
@@ -102,10 +158,97 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
 .q-name{font-size:12.5px;font-weight:700;color:var(--light)}
 .q-item.done .q-name{color:var(--green)}
 .q-desc{font-size:10.5px;color:var(--muted);margin-top:2px}
+.q-desc a{color:var(--gold);text-decoration:underline}
 .q-reward{font-size:10px;color:#888;margin-top:3px}
 .q-check{font-size:18px;flex-shrink:0;margin-top:1px}
 .q-item.done .q-check::before{content:'✅'}
 .q-item:not(.done) .q-check::before{content:'⬜'}
+.q-item-multi{cursor:default}
+.q-multi-count{font-size:10.5px;font-weight:400;color:var(--muted)}
+.q-type-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.q-type-chip{font-size:10.5px;padding:4px 8px;border-radius:12px;cursor:pointer;
+  border:1px solid #3a3a5a;background:#1a1a2e;color:var(--muted);transition:.15s}
+.q-type-chip:hover{border-color:#555}
+.q-type-chip.on{background:#0D1F0D;border-color:var(--green);color:var(--green)}
+.q-type-chip-link{font-size:11px;text-decoration:none;margin:0 4px 0 -2px;align-self:center}
+.q-counter-ctrl{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.q-info-btn{font-size:10px;padding:2px 8px;border-radius:10px;border:1px solid #444;
+  background:transparent;color:var(--muted);cursor:pointer;margin-left:6px}
+.q-info-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+.info-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:110;
+  align-items:center;justify-content:center;padding:16px}
+.info-modal-box{background:var(--card);border:1px solid #2a2a4a;border-radius:14px;
+  max-width:560px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.info-modal-head{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid #2a2a4a;font-size:14px;font-weight:900;color:var(--gold)}
+.info-modal-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 6px}
+.info-modal-close:hover{color:var(--white)}
+.info-modal-body{padding:16px;overflow-y:auto;font-size:12.5px;line-height:1.9;color:var(--light)}
+.info-modal-body b{color:var(--gold)}
+
+/* ─── DATE LOG ─── */
+.datelog-wrap{max-width:1100px;margin:0 auto;padding:0 12px 24px}
+.datelog-panel{padding:0;overflow:hidden}
+.datelog-header{display:flex;align-items:center;justify-content:space-between;
+  padding:14px;cursor:pointer;user-select:none}
+.datelog-header h3{font-size:13px;font-weight:700;color:var(--white)}
+.datelog-toggle{color:var(--muted);font-size:12px;transition:transform .2s}
+.datelog-toggle.closed{transform:rotate(-90deg)}
+.datelog-body{padding:0 14px 14px;border-top:1px solid #2a2a4a}
+.datelog-body.closed{display:none}
+.dl-mybirth{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;
+  background:var(--card2);border:1px solid var(--gold);border-radius:10px}
+.dl-mybirth label{font-size:11.5px;color:var(--gold);font-weight:700;white-space:nowrap}
+.dl-mybirth input{background:var(--card);border:1px solid #2a2a4a;border-radius:8px;
+  padding:6px 9px;font-size:12px;color:var(--light);font-family:inherit}
+.datelog-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;margin-top:14px}
+.dl-filter{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;margin-top:14px;padding:10px 12px;background:var(--card2);border:1px solid #2a2a4a;
+  border-radius:10px;align-items:end}
+.dl-filter-count{font-size:11px;color:var(--muted);margin:6px 2px 0}
+.dl-filter-clear-btn{flex-shrink:0;height:32px;padding:0 14px;border-radius:6px;border:1px solid #2a2a4a;
+  background:var(--card2);color:var(--gold);font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.dl-filter-clear-btn:hover{border-color:var(--gold)}
+.dl-stepper{display:flex;align-items:center;gap:8px}
+.dl-step-btn{flex-shrink:0;width:28px;height:28px;border-radius:6px;border:1px solid #2a2a4a;
+  background:var(--card2);color:var(--gold);font-size:14px;font-weight:900;cursor:pointer;line-height:1}
+.dl-step-btn:hover{border-color:var(--gold)}
+#dl-cost{width:90px;text-align:center;flex-shrink:0}
+.dl-cost-unit{font-size:12px;color:var(--muted)}
+.dl-age-diff{font-size:10.5px;color:var(--gold);min-height:14px}
+.dl-field{display:flex;flex-direction:column;gap:4px}
+.dl-field-wide{grid-column:1/-1}
+.dl-field label{font-size:10.5px;color:var(--muted)}
+.dl-field input,.dl-field select,.dl-field textarea{background:var(--card2);
+  border:1px solid #2a2a4a;border-radius:8px;padding:7px 9px;font-size:12px;
+  color:var(--light);font-family:inherit}
+.dl-field textarea{min-height:52px;resize:vertical}
+.dl-field input:focus,.dl-field select:focus,.dl-field textarea:focus{outline:none;border-color:var(--gold)}
+.dl-add-btn{grid-column:1/-1;font-size:12.5px;padding:9px;border-radius:10px;
+  border:none;background:var(--gold);color:var(--bg);font-weight:900;cursor:pointer;margin-top:4px}
+.dl-add-btn:hover{filter:brightness(1.08)}
+.dl-summary{margin-top:16px;padding:10px 12px;background:var(--card2);border:1px solid #2a2a4a;
+  border-radius:10px;font-size:11.5px;color:var(--light);line-height:1.8}
+.dl-summary b{color:var(--gold)}
+.dl-table-wrap{margin-top:14px;overflow-x:auto}
+.dl-table{border-collapse:collapse;width:100%;font-size:11px}
+.dl-table th,.dl-table td{border:1px solid #2a2a4a;padding:6px 8px;text-align:left;
+  white-space:nowrap;color:var(--light)}
+.dl-table th{background:var(--card2);color:var(--muted);position:sticky;top:0}
+.dl-table td[contenteditable="true"]{cursor:text;min-width:60px;max-width:220px;
+  white-space:normal;overflow-wrap:break-word}
+.dl-table td[contenteditable="true"]:focus{outline:1px solid var(--gold);background:var(--card2)}
+.dl-table td.dl-readonly{color:var(--muted);cursor:default}
+/* 長文項目はスプレッドシートのように1行に圧縮し、はみ出た分は「…」表示（クリックで編集展開） */
+.dl-table td.dl-longtext{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.dl-table td.dl-longtext:focus{white-space:normal;overflow:visible;overflow-wrap:break-word;
+  max-width:320px;z-index:1;position:relative}
+.dl-del-btn{background:transparent;border:1px solid var(--red);color:var(--red);
+  border-radius:6px;padding:3px 8px;font-size:10.5px;cursor:pointer}
+.dl-del-btn:hover{background:var(--red);color:var(--white)}
+.dl-empty{padding:16px;text-align:center;color:var(--muted);font-size:11.5px}
 
 /* ─── TOAST ─── */
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.8);
@@ -127,29 +270,91 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
   <div class="av-grid" id="av-grid"></div>
 </div>
 
+<!-- Quest Info Modal（クエストの補足ガイド用） -->
+<div id="infoModal" class="info-modal-overlay" onclick="if(event.target===this) closeInfoModal()">
+  <div class="info-modal-box">
+    <div class="info-modal-head">
+      <span id="infoModalTitle"></span>
+      <button class="info-modal-close" onclick="closeInfoModal()">✕</button>
+    </div>
+    <div id="infoModalBody" class="info-modal-body"></div>
+  </div>
+</div>
+
+<!-- Notion連携設定モーダル -->
+<div id="notionModal" class="info-modal-overlay" onclick="if(event.target===this) closeNotionSettings()">
+  <div class="info-modal-box">
+    <div class="info-modal-head">
+      <span>⚙️ Notion連携設定</span>
+      <button class="info-modal-close" onclick="closeNotionSettings()">✕</button>
+    </div>
+    <div class="info-modal-body">
+      <p style="margin-bottom:10px">個人用インテグレーショントークン方式です。以下の3つをこのブラウザだけに保存します（サーバーには送信しません、Notion連携時のみ都度プロキシ経由で転送されます）。</p>
+      <ol style="margin:0 0 14px 18px;padding:0;font-size:12px;line-height:1.8">
+        <li><a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener">Notionのインテグレーション作成ページ</a>で新規インテグレーションを作成し、トークン（<code>ntn_...</code>）をコピー</li>
+        <li>連携先にしたいNotionデータベースを開き、右上「…」→「コネクト」から今作ったインテグレーションを追加</li>
+        <li>データベースのURLの32桁のID部分をコピー（例: notion.so/xxxx<b>32桁のID</b>?v=...）</li>
+        <li>下記のプロキシURLは、デプロイ済みの<code>lovequest-notion-proxy</code>のURLを入力</li>
+      </ol>
+      <div class="dl-field" style="margin-bottom:8px"><label>Notionインテグレーショントークン</label>
+        <input type="password" id="notion-token" placeholder="ntn_..." style="width:100%"></div>
+      <div class="dl-field" style="margin-bottom:8px"><label>NotionデータベースID</label>
+        <input type="text" id="notion-db" placeholder="32桁のID" style="width:100%"></div>
+      <div class="dl-field" style="margin-bottom:14px"><label>プロキシURL</label>
+        <input type="text" id="notion-proxy" placeholder="https://lovequest-notion-proxy.vercel.app" style="width:100%"></div>
+      <button type="button" class="dl-add-btn" onclick="saveNotionSettings()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- Header -->
 <header>
+  <div class="hdr-side left"><a class="portal-back" href="https://www.lovequest-masters.com/" target="_blank" rel="noopener">← <span class="pb-txt">ポータルへ戻る</span></a></div>
   <div class="logo">LOVE<span>QUEST</span> <span style="font-size:12px;color:var(--muted)">MASTERS</span></div>
-  <div class="hdr-right">
-    <button class="demo-btn" onclick="loadDemo()">⚡ デモデータ</button>
-    <button class="reset-btn" onclick="resetAll()">🔄 リセット</button>
+  <div class="hdr-side right">
+    <div class="hdr-right">
+      <button class="save-btn" onclick="saveBookFile()">📖 冒険の書を保存</button>
+      <button class="load-btn" onclick="document.getElementById('bookFileInput').click()">📂 読込</button>
+      <input type="file" id="bookFileInput" accept=".md,text/markdown" style="display:none" onchange="loadBookFile(this.files[0])">
+      <button class="reset-btn" onclick="resetAll()">🔄 リセット</button>
+      <button class="reset-btn" id="reloadBtn">🔄 RELOAD</button>
+    </div>
   </div>
 </header>
 
 <!-- Main -->
 <main>
-  <!-- Avatar Panel -->
-  <div class="panel" id="avatar-panel">
-    <div class="av-display" id="av-icon">🧙</div>
-    <div class="av-title" id="av-name">魔法戦士</div>
-    <div class="av-sub" id="av-sub">戦士 × 魔法使い</div>
-    <button class="change-btn" onclick="openModal()">✏️ 変更</button>
-    <div class="overall-box">
-      <div class="overall-lbl">総合レベル</div>
-      <div class="overall-lv" id="ov-lv">Lv.1</div>
-      <div class="overall-title" id="ov-rank">見習い冒険者</div>
-      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
-      <div class="xp-txt" id="xp-txt">0 / 100 XP</div>
+  <!-- Left Column: Avatar + Command -->
+  <div class="left-col">
+    <div class="panel" id="avatar-panel">
+      <div class="av-display" id="av-icon">🧙</div>
+      <div class="av-title" id="av-name">魔法戦士</div>
+      <div class="av-sub" id="av-sub">戦士 × 魔法使い</div>
+      <button class="change-btn" onclick="openModal()">✏️ 変更</button>
+      <div class="overall-box">
+        <div class="overall-lbl">総合レベル</div>
+        <div class="overall-lv" id="ov-lv">Lv.1</div>
+        <div class="overall-title" id="ov-rank">見習い冒険者</div>
+        <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+        <div class="xp-txt" id="xp-txt">0 / 100 XP</div>
+      </div>
+    </div>
+
+    <!-- Command Panel -->
+    <div class="panel" id="command-panel">
+      <h3>⚔️ コマンド</h3>
+      <a class="cmd-item" href="https://gitmind.com/jp/" target="_blank" rel="noopener" onclick="useMindmap()">
+        <span class="cmd-arrow">▶</span>
+        <span class="cmd-text">マインドマップ<span class="cmd-sub">（事前準備、相手の記録）</span></span>
+      </a>
+      <div class="cmd-item" onclick="document.getElementById('datelog-panel').scrollIntoView({behavior:'smooth', block:'start'})">
+        <span class="cmd-arrow">▶</span>
+        <span class="cmd-text">デートログ<span class="cmd-sub">（事後振り返り、デートの記録）</span></span>
+      </div>
+      <a class="cmd-item" href="training.html">
+        <span class="cmd-arrow">▶</span>
+        <span class="cmd-text">トレーニング(FANTS等)<span class="cmd-sub">（チェックリスト対応トレーニング教材）</span></span>
+      </a>
     </div>
   </div>
 
@@ -166,6 +371,117 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
   </div>
 </main>
 
+<!-- Date Log Section -->
+<div class="datelog-wrap">
+  <div class="panel datelog-panel" id="datelog-panel">
+    <div class="datelog-header" onclick="toggleDateLogAccordion()">
+      <h3>📔 デートログ</h3>
+      <span class="datelog-toggle" id="datelog-toggle-icon">▼</span>
+    </div>
+    <div class="datelog-body" id="datelog-body">
+
+      <div class="dl-mybirth">
+        <label>🎂 MyBirth（自分の生年月日）</label>
+        <input type="date" id="dl-mybirth" onchange="onMyBirthChange()">
+      </div>
+
+      <form class="datelog-form" id="datelog-form" onsubmit="return false;">
+        <div class="dl-field"><label>デート日時</label>
+          <input type="datetime-local" id="dl-datetime"></div>
+        <div class="dl-field"><label>お相手のお名前</label>
+          <input type="text" id="dl-name" placeholder="例: ○○さん"></div>
+        <div class="dl-field"><label>出会ったきっかけ</label>
+          <select id="dl-tool" onchange="onDlToolChange()">
+            <option value="">選択してください</option>
+            <option value="合コン">合コン</option>
+            <option value="パーティ">パーティ</option>
+            <option value="知人・友人繋がり">知人・友人繋がり</option>
+            <option value="職場・趣味等のコミュニティ">職場・趣味等のコミュニティ</option>
+            <option value="マッチングアプリ(pairs)">マッチングアプリ(pairs)</option>
+            <option value="マッチングアプリ(with)">マッチングアプリ(with)</option>
+            <option value="マッチングアプリ(omiai)">マッチングアプリ(omiai)</option>
+            <option value="マッチングアプリ(IBJ)">マッチングアプリ(IBJ)</option>
+            <option value="マッチングアプリ(東カレ)">マッチングアプリ(東カレ)</option>
+            <option value="マッチングアプリ(バチェラー)">マッチングアプリ(バチェラー)</option>
+            <option value="マッチングアプリ(その他)">マッチングアプリ(その他)</option>
+            <option value="その他">その他</option>
+          </select></div>
+        <div class="dl-field" id="dl-tool-other-wrap" style="display:none"><label>出会ったきっかけ（その他・詳細）</label>
+          <input type="text" id="dl-tool-other" placeholder="具体的に入力してください"></div>
+        <div class="dl-field"><label>服装</label>
+          <input type="text" id="dl-outfit" placeholder="例: きれいめカジュアル"></div>
+        <div class="dl-field"><label>お店の情報</label>
+          <input type="text" id="dl-shop" placeholder="例: オンラインのためなし／店名"></div>
+        <div class="dl-field"><label>デートで使用した合計金額</label>
+          <div class="dl-stepper">
+            <button type="button" class="dl-step-btn" onclick="adjDlCost(-1000)">－</button>
+            <input type="text" inputmode="numeric" id="dl-cost" value="0" oninput="onDlCostInput()">
+            <span class="dl-cost-unit">円</span>
+            <button type="button" class="dl-step-btn" onclick="adjDlCost(1000)">＋</button>
+          </div></div>
+        <div class="dl-field"><label>今回の女性とのデート回数</label>
+          <input type="number" id="dl-visitCount" min="1" placeholder="回目"></div>
+        <div class="dl-field"><label>お相手の年齢</label>
+          <input type="number" id="dl-age" placeholder="歳" oninput="updateAgeDiffPreview()">
+          <span class="dl-age-diff" id="dl-age-diff"></span></div>
+        <div class="dl-field"><label>お相手の職業</label>
+          <input type="text" id="dl-job"></div>
+        <div class="dl-field"><label>お相手の住まい</label>
+          <input type="text" id="dl-home"></div>
+        <div class="dl-field"><label>相手のタイプ</label>
+          <select id="dl-type"><option value="">未診断</option></select></div>
+        <div class="dl-field dl-field-wide"><label>今回の目標</label>
+          <textarea id="dl-goal"></textarea></div>
+        <div class="dl-field dl-field-wide"><label>会話の内容</label>
+          <textarea id="dl-talk"></textarea></div>
+        <div class="dl-field dl-field-wide"><label>今回のデートで少しでもうまくいったこと</label>
+          <textarea id="dl-good"></textarea></div>
+        <div class="dl-field dl-field-wide"><label>感想・次回に向けての改善点</label>
+          <textarea id="dl-review"></textarea></div>
+        <div class="dl-field dl-field-wide"><label>その後のやり取り/次回約束</label>
+          <textarea id="dl-followup"></textarea></div>
+        <button class="dl-add-btn" onclick="addDateLog()">＋ デートログを追加</button>
+      </form>
+
+      <div class="dl-summary" id="dl-summary"></div>
+
+      <div class="dl-filter">
+        <div class="dl-field"><label>タイプで絞り込み</label>
+          <select id="dlf-type" onchange="onDlFilterChange()"><option value="">すべて</option></select></div>
+        <div class="dl-field"><label>デート回数で絞り込み</label>
+          <select id="dlf-visit" onchange="onDlFilterChange()">
+            <option value="">すべて</option>
+            <option value="1">1回目</option>
+            <option value="2">2回目</option>
+            <option value="3">3回目</option>
+            <option value="4">4回目</option>
+            <option value="5">5回目</option>
+            <option value="6+">6回目以上</option>
+          </select></div>
+        <div class="dl-field dl-field-wide"><label>キーワード検索（名前・お店・会話内容など）</label>
+          <input type="text" id="dlf-q" placeholder="例: ○○さん／恵比寿／焼き鳥" oninput="onDlFilterChange()"></div>
+        <button type="button" class="dl-filter-clear-btn" onclick="clearDlFilters()">絞り込み解除</button>
+        <button type="button" class="dl-filter-clear-btn" onclick="exportDateLogsCsv()">📤 CSV出力</button>
+        <button type="button" class="dl-filter-clear-btn" onclick="openNotionSettings()">⚙️ Notion連携設定</button>
+      </div>
+      <div class="dl-filter-count" id="dl-filter-count"></div>
+
+      <div class="dl-table-wrap">
+        <table class="dl-table" id="dl-table">
+          <thead><tr>
+            <th>日時</th><th>名前</th><th>きっかけ</th><th>服装</th><th>お店</th><th>金額</th><th>回数</th>
+            <th>年齢</th><th>職業</th><th>住まい</th><th>タイプ</th>
+            <th>目標</th><th>会話</th><th>うまくいったこと</th><th>感想・改善点</th><th>その後のやり取り/次回約束</th>
+            <th>Notionリンク</th><th></th>
+          </tr></thead>
+          <tbody id="dl-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- Level Up Toast -->
 <div id="toast">
   <div class="t-icon">🌟</div>
@@ -176,42 +492,159 @@ main{display:grid;grid-template-columns:220px 1fr 280px;gap:12px;
 <script>
 // ─── DATA ───────────────────────────────────────────
 const AVATARS = [
-  {name:'狂戦士',icon:'⚔️',type:'se',sub:'戦士ド直球'},
-  {name:'勇者',  icon:'🦸',type:'se',sub:'戦士 × 踊り子'},
-  {name:'魔法戦士',icon:'🧙',type:'se',sub:'戦士 × 魔法使い'},
-  {name:'聖戦士',icon:'🛡️',type:'se',sub:'戦士 × 僧侶'},
-  {name:'姫',   icon:'👸',type:'od',sub:'踊り子ド直球'},
-  {name:'騎士',  icon:'🏇',type:'od',sub:'踊り子 × 戦士'},
-  {name:'盗賊',  icon:'🗡️',type:'od',sub:'踊り子 × 魔法使い'},
-  {name:'妖精',  icon:'🧚',type:'od',sub:'踊り子 × 僧侶'},
-  {name:'シスター',icon:'🌿',type:'so',sub:'僧侶ド直球'},
-  {name:'兵士',  icon:'🪖',type:'so',sub:'僧侶 × 戦士'},
-  {name:'牧師',  icon:'📖',type:'so',sub:'僧侶 × 踊り子'},
-  {name:'賢者',  icon:'🦉',type:'so',sub:'僧侶 × 魔法使い'},
-  {name:'魔道士',icon:'🔮',type:'ma',sub:'魔法使いド直球'},
-  {name:'忍者',  icon:'🥷',type:'ma',sub:'魔法使い × 戦士'},
-  {name:'道化師',icon:'🎭',type:'ma',sub:'魔法使い × 踊り子'},
-  {name:'占い師',icon:'⭐',type:'ma',sub:'魔法使い × 僧侶'},
+  {name:'狂戦士',icon:'⚔️',file:'kyousenshi',type:'se',sub:'戦士ド直球'},
+  {name:'勇者',  icon:'🦸',file:'yuusha',type:'se',sub:'戦士 × 踊り子'},
+  {name:'魔法戦士',icon:'🧙',file:'mahousenshi',type:'se',sub:'戦士 × 魔法使い'},
+  {name:'聖戦士',icon:'🛡️',file:'seisenshi',type:'se',sub:'戦士 × 僧侶'},
+  {name:'姫',   icon:'👸',file:'hime',type:'od',sub:'踊り子ド直球'},
+  {name:'騎士',  icon:'🏇',file:'kishi',type:'od',sub:'踊り子 × 戦士'},
+  {name:'盗賊',  icon:'🗡️',file:'touzoku',type:'od',sub:'踊り子 × 魔法使い'},
+  {name:'妖精',  icon:'🧚',file:'yousei',type:'od',sub:'踊り子 × 僧侶'},
+  {name:'シスター',icon:'🌿',file:'sister',type:'so',sub:'僧侶ド直球'},
+  {name:'兵士',  icon:'🪖',file:'heishi',type:'so',sub:'僧侶 × 戦士'},
+  {name:'牧師',  icon:'📖',file:'bokushi',type:'so',sub:'僧侶 × 踊り子'},
+  {name:'賢者',  icon:'🦉',file:'kenja',type:'so',sub:'僧侶 × 魔法使い'},
+  {name:'魔道士',icon:'🔮',file:'madoushi',type:'ma',sub:'魔法使いド直球'},
+  {name:'忍者',  icon:'🥷',file:'ninja',type:'ma',sub:'魔法使い × 戦士'},
+  {name:'道化師',icon:'🎭',file:'doukeshi',type:'ma',sub:'魔法使い × 踊り子'},
+  {name:'占い師',icon:'⭐',file:'uranaishi',type:'ma',sub:'魔法使い × 僧侶'},
 ];
 
-const STATS = [
-  {key:'外見力', icon:'✨', color:'#E94560', desc:'ファッション・清潔感・雰囲気'},
-  {key:'デート力',icon:'🗺️',color:'#F5A623', desc:'デート企画・場の演出力'},
-  {key:'魅了力', icon:'💫', color:'#7B5EA7', desc:'会話・印象・トキメキを生む力'},
-  {key:'コミュ力',icon:'💬',color:'#4CAF73', desc:'タイプ読み・共感・アプローチ'},
+// avatarフォルダのPNGを参照（差し替え可能）。読み込み失敗時は絵文字にフォールバック
+function iconImg(t, cls){
+  const c = cls ? `icon ${cls}` : 'icon';
+  return `<img class="${c}" src="avatar/${t.file}.png" alt="${t.name}" `
+    + `onerror="this.outerHTML='<span class=&quot;${c} icon-fallback&quot;>${t.icon}</span>'">`;
+}
+
+// レーダーチャート(6軸・上から時計回り)。メンタル/魅了力/分析力は他ステータスから自動計算される派生値
+const RADAR_STATS = [
+  {key:'メンタル',icon:'🛡️',color:'#4A9EDB', desc:'認識力が上がると連動して上がる（自動計算）', derived:true},
+  {key:'外見力', icon:'✨', color:'#E94560', desc:'ファッション講座・身だしなみ・清潔感（洋服を新調するとUP）'},
+  {key:'デート力',icon:'🗺️',color:'#F5A623', desc:'デートの回数・報告分析・デートマインドマップ作成でUP'},
+  {key:'コミュ力',icon:'💬',color:'#4CAF73', desc:'マニュアルのインプット・アウトプットでUP'},
+  {key:'魅了力', icon:'💫', color:'#7B5EA7', desc:'認識力・表現力・楽転力・共感力・行動力・包容力の経験値＋マニュアル受講チェックで上がる（自動計算）', derived:true},
+  {key:'経験値', icon:'🌟', color:'#8888AA', desc:'クエスト達成度＋マインドマップ作成／インパス診断／デートログ件数で上がる（自動計算）', derived:true},
 ];
+// レーダーチャートの外に置く追加の派生ステータス（分析力）
+const ANALYSIS_STAT = {key:'分析力', icon:'🧠', color:'#4A9EDB', desc:'インパス診断ツールの使用回数で上がる（自動計算）', derived:true};
+// LCIQマニュアル動画視聴チェックリスト。チェックすると対象ステータスに+10（外すと-10）。amount指定があればそれを使う
+const MANUAL_COURSES = [
+  {key:'認識力', name:'LCIQ認識力向上マニュアル', amount:30},
+  {key:'表現力', name:'表現力アップ講座', amount:30},
+  {key:'楽転力', name:'楽転力（ポジティブ変換）講座', amount:30},
+  {key:'共感力', name:'共感力向上講座', amount:30},
+  {key:'継続力', name:'継続力アップ講座', amount:30},
+  {key:'魅了力', name:'魅了力UP!動画講座', amount:30, derived:true},
+];
+// レーダーチャート対象外の追加ステータス
+const EXTRA_STATS = [
+  {key:'認識力', icon:'👁️', color:'#E94560', desc:'LCIQ診断など。上がるとメンタル力が連動して上がる'},
+  {key:'表現力', icon:'🎤', color:'#F5A623', desc:'気持ちや考えを言葉・態度で伝える力。魅了力の経験値になる'},
+  {key:'楽転力', icon:'🔄', color:'#4CAF73', desc:'落ち込みや失敗を前向きに切り替える力。魅了力の経験値になる'},
+  {key:'共感力', icon:'🤝', color:'#4A9EDB', desc:'相手の気持ちに寄り添い理解する力。魅了力の経験値になる'},
+  {key:'行動力', icon:'🏃', color:'#E94560', desc:'迷わず一歩を踏み出す力。魅了力の経験値になる'},
+  {key:'包容力', icon:'🌿', color:'#F5A623', desc:'相手をありのまま受け止める力。魅了力の経験値になる'},
+  {key:'継続力', icon:'🔥', color:'#4CAF73', desc:'コツコツ続け、習慣化する力'},
+];
+const STATS = [...RADAR_STATS.filter(s=>!s.derived), ...EXTRA_STATS];
+
+function statValue(key){
+  if(key==='メンタル') return Math.min(100, state.stats['認識力']||0);
+  if(key==='魅了力'){
+    const src=['認識力','表現力','楽転力','共感力','行動力','包容力'];
+    const avg = src.reduce((s,k)=>s+(state.stats[k]||0),0)/src.length;
+    // LCIQマニュアル動画視聴で上記6項目を受講済みなら追加ボーナス
+    const checkedBonus = (state.manualDone||[]).filter(k=>src.includes(k)).length * 15;
+    // 「魅了力UP!動画講座」を視聴済みなら直接+30(この項目はチェックリスト内だがsrcの6項目とは別枠)
+    const videoBonus = (state.manualDone||[]).includes('魅了力') ? 30 : 0;
+    // 魅了力向上セミナー(multi系クエスト)は1トピック視聴ごとに+5
+    const seminarBonus = (state.multiChecks['魅了力向上セミナー']||[]).length * 5;
+    return Math.min(100, Math.round(avg + checkedBonus + videoBonus + seminarBonus));
+  }
+  if(key==='経験値') return Math.min(100, Math.round(totalXP()/1600*100) + (state.mindmapCount||0)*5 + (state.impassCount||0)*5 + (state.dateLogs||[]).length*1 + (state.dateApoCount||0)*0.5 + (state.confessionFailCount||0)*10);
+  if(key==='分析力') return Math.min(100, Math.round((state.impassCount||0)*0.1*10)/10);
+  return Math.min(100, state.stats[key]||0);
+}
 
 const QUESTS = [
-  {name:'タイプ診断マスター',   desc:'恋愛式学16タイプを理解する', icon:'🔮',xp:100, reward:{コミュ力:15,魅了力:10}},
-  {name:'プロフィール写真改善', desc:'外見力基礎講座を完了',        icon:'📸',xp:80,  reward:{外見力:20}},
-  {name:'外見力 Lv.3 達成',    desc:'外見スコア30以上を達成',       icon:'✨',xp:120, reward:{外見力:10,魅了力:5}},
+  {name:'タイプ診断マスター',   desc:'恋愛式学16タイプを理解する(1タイプ理解ごとに+1P、16タイプ全て理解でボーナス+100XP)', icon:'🔮', multi:true, items:AVATARS.map(a=>a.name), perItemXP:1, xp:100, reward:{コミュ力:15,共感力:10}},
+  {name:'プロフィール写真改善', desc:'FANTS内「外見力基礎講座」を受講・完了する', icon:'📸',xp:80,  reward:{外見力:20}},
+  {name:'タイプ別ファッション講座', desc:'FANTS内の資料を視聴する(1つ視聴ごとに外見力+10、2つ視聴で合計+20)', icon:'👔', multi:true, items:[
+    {label:'タイプ別女性ファッションの見極めガイド', url:'https://bmen.jp/pdf/2W8ngN3dJc.pdf'},
+    {label:'タイプ別女性が好む男性ファッションガイド', url:'https://bmen.jp/pdf/tQUNciFEp2.pdf'},
+  ], perItemReward:{外見力:10}, xp:0, reward:{}},
+  {name:'マッチングアプリ完全解説マニュアル', desc:'FANTS内「マッチングアプリ完全解説マニュアル」を学習する。<a href="https://drive.google.com/file/d/1mnkq_HmfpfRLna5kU_ruywNv6EO6GWS8/view" target="_blank" rel="noopener">📄資料</a>', icon:'📘',xp:60, reward:{認識力:5,外見力:5,コミュ力:5}},
+  {name:'デート力講座', desc:'FANTS内「KING OF DATE」を視聴する(全6章、1章学習ごとにデート力+5)。<a href="https://docs.google.com/document/d/16LPOh-Hl85fZFb-KUAI9_eXhUsaMcboSY-7WitXfbNI/edit" target="_blank" rel="noopener">📄資料</a>', icon:'🗺️', multi:true, items:[
+    '第1章 出逢いの数の作り方',
+    '第2章 デートは準備が8割(逆算式のデート準備)',
+    '第3章 初回デートの心得',
+    '第4章 2回目デートの流儀',
+    '第5章 告白デートの成功法則',
+    '第6章 長続きするパートナーマネジメント学',
+  ], perItemReward:{デート力:5}, xp:0, reward:{}},
   {name:'マッチングアプリ登録', desc:'アプリを始める第一歩',         icon:'📱',xp:50,  reward:{コミュ力:10}},
-  {name:'初メッセージ送信',    desc:'相手にメッセージを送る',        icon:'💬',xp:80,  reward:{コミュ力:15,デート力:5}},
-  {name:'初回デート成功',      desc:'初めてのデートを完了',          icon:'☕',xp:200, reward:{デート力:25,魅了力:15}},
-  {name:'2回目デートOK',       desc:'相手から2回目の承諾を得る',     icon:'🌟',xp:250, reward:{魅了力:20,デート力:15}},
-  {name:'コミュ力 Lv.5 達成',  desc:'コミュスコア50以上を達成',      icon:'💫',xp:150, reward:{コミュ力:10,魅了力:10}},
-  {name:'デート力 Lv.5 達成',  desc:'デートスコア50以上を達成',      icon:'🗺️',xp:150, reward:{デート力:10,魅了力:10}},
-  {name:'交際スタート',        desc:'パートナーと付き合い始める',     icon:'💑',xp:500, reward:{外見力:10,デート力:10,魅了力:10,コミュ力:10}},
+  {name:'デートアポクリア！',   desc:'デートへ誘ってOKされたら押す(1回ごとに+0.5XP、何度でも加算可能)', icon:'📅', counter:true, countKey:'dateApoCount', perClickXP:0.5},
+  {name:'初デート成功',        desc:'デートするたびに押す(1回ごとにデート力+5、コミュ力+1、何度でも加算可能)', icon:'☕', counter:true, countKey:'dateSuccessCount', perClickReward:{デート力:5,コミュ力:1}},
+  {name:'2回目デートOK',       desc:'相手から2回目の承諾を得たら押す(1回ごとにデート力+10、コミュ力+5、何度でも加算可能)', icon:'🌟', counter:true, countKey:'dateSecondCount', perClickReward:{デート力:10,コミュ力:5}},
+  {name:'タイプ別！コミュニケーション向上講座', desc:'FANTS内の資料(全13トピック)を視聴する(1トピックごとにコミュ力+5)。<a href="https://docs.google.com/document/d/1xqWGG-1vRqilq243KhVX_K38b1jJuBUKMJ8We7aP65g/edit" target="_blank" rel="noopener">📄資料</a>', icon:'💫', multi:true, items:[
+    'そもそも「コミュ力」とは？',
+    'なぜ「相手に合わせる」のか？',
+    '会話の基本「話す3：聞く7」',
+    '笑顔とリアクション',
+    '会話が続く「質問」の作り方',
+    '最強の会話ループ「聞く→共感→深掘り→自己開示」',
+    '共感＝「同意」ではない',
+    'ここから恋愛式学！タイプによって「会話の正解」は違う',
+    'タイプによって「褒める場所」を変えよう',
+    'タイプ別「やってはいけない会話」',
+    'トーク展開力を身につけよう',
+    '会話が苦手な人の「3つの勘違い」',
+    'コミュ力レベルアップチェックリスト',
+  ], perItemReward:{コミュ力:5}, xp:0, reward:{}},
+  {name:'デート力 Lv.5 達成',  desc:'デートスコア50以上を達成',      icon:'🗺️',xp:150, reward:{デート力:10,表現力:10}},
+  {name:'告白デート',          desc:'告白した結果を記録する(OK: デート力+50/コミュ力+20 ／ 失敗: 経験値+10)', icon:'💍', choice:true, infoKey:'confession', options:[
+    {key:'ok', label:'✅ OK！成功', countKey:'confessionOkCount', perClickReward:{デート力:50,コミュ力:20}},
+    {key:'fail', label:'😢 失敗', countKey:'confessionFailCount'},
+  ]},
+  {name:'交際スタート',        desc:'パートナーと付き合い始める',     icon:'💑',xp:500, reward:{外見力:10,デート力:10,共感力:10,コミュ力:10}},
+  {name:'タイプ別！パートナーシップ学', desc:'FANTS内の資料(全10トピック)を視聴する(1トピックごとに継続力+5)。<a href="https://docs.google.com/document/d/1sL4n1kRsxLvk_IUgVMn827toFa4LwAV7zB6ck_9gRvg/edit" target="_blank" rel="noopener">📄資料</a>', icon:'💞', multi:true, items:[
+    '付き合ってからが、本当のスタート',
+    '「自分の普通」を相手に押しつけない',
+    '16タイプ別「愛情の感じ方」',
+    '16タイプ別「心地よい距離感」',
+    '16タイプ別「愛情表現」',
+    '16タイプ別「すれ違い・ケンカ」',
+    '不満を溜めない「伝え方」',
+    'マンネリを防ぐパートナーシップ',
+    '「支える」と「背負う」は違う',
+    '2人だけの「パートナーシップ」を作る',
+  ], perItemReward:{継続力:5}, xp:0, reward:{}},
+  {name:'認識力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに認識力+5)。<a href="https://youtu.be/IRi6rP83rTI" target="_blank" rel="noopener">🎬動画</a> / <a href="https://docs.google.com/presentation/d/1RjbWw1TetijQzggKolb2l3DK9MTiDdPUwQQ_ZIOqpM0/edit" target="_blank" rel="noopener">📄資料</a>', icon:'👁️', multi:true, items:[
+    '認識力とは(低い人の特徴)','認識力が低いままだと','認識力の上げ方','認識力を高めるとどんな未来が待ってるか',
+  ], perItemReward:{認識力:5}, xp:0, reward:{}},
+  {name:'表現力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに表現力+5)。<a href="https://youtu.be/UGEWNsdl3mw" target="_blank" rel="noopener">🎬動画</a> / <a href="https://docs.google.com/presentation/d/1jVB2JdNWkvgVDIRGYA8Y6URZpjZ2DS2CtbefmgymPi0/edit" target="_blank" rel="noopener">📄資料</a>', icon:'🎤', multi:true, items:[
+    '表現力とは(低い人の特徴)','表現力が低いままだと','表現力の上げ方','表現力を高めるとどんな未来が待ってるか',
+  ], perItemReward:{表現力:5}, xp:0, reward:{}},
+  {name:'楽転力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに楽転力+5)。<a href="https://youtu.be/dLPqHvMWpHY" target="_blank" rel="noopener">🎬動画</a> / <a href="https://docs.google.com/presentation/d/142C2vGpaxtxWy3OywoplhewCu3eZhU-PVVsybjh_wNI/edit" target="_blank" rel="noopener">📄資料</a>', icon:'🔄', multi:true, items:[
+    '楽転力とは(低い人の特徴)','楽転力が低いままだと','楽転力の上げ方','楽転力を高めるとどんな未来が待ってるか',
+  ], perItemReward:{楽転力:5}, xp:0, reward:{}},
+  {name:'共感力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに共感力+5)。<a href="https://youtu.be/h6zKA6apcu8" target="_blank" rel="noopener">🎬動画1</a> / <a href="https://youtu.be/tnEoREFWegc" target="_blank" rel="noopener">🎬動画2</a> / <a href="https://docs.google.com/presentation/d/12rw7Cc9MH6FPCxc4iqMXgmftQ9z1Ay3K_2l8H_qKsWE/edit" target="_blank" rel="noopener">📄資料</a>', icon:'🤝', multi:true, items:[
+    '共感力とは(低い人の特徴)','共感力が低いままだと','共感力の上げ方','共感力を高めるとどんな未来が待ってるか',
+  ], perItemReward:{共感力:5}, xp:0, reward:{}},
+  {name:'魅了力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに魅了力+5)。<a href="https://youtu.be/xPW9Yh0LyBE" target="_blank" rel="noopener">🎬動画</a> / <a href="https://docs.google.com/presentation/d/1pz2VigXibNgsxVCvXzFwcVMUTlBJ-eHvIJ-ysYyZirM/edit" target="_blank" rel="noopener">📄資料</a>', icon:'💫', multi:true, items:[
+    '魅了力が低い人の特徴と原因','魅了力が低いままだと','魅了力の高い男性の特徴15選','魅了力の上げ方',
+  ], perItemReward:{魅了力:5}, xp:0, reward:{}},
+  {name:'継続力向上セミナー', desc:'FANTS資料(全4トピック)を視聴する(1トピックごとに継続力+5)。<a href="https://youtu.be/1DaQeIOJJC4" target="_blank" rel="noopener">🎬動画</a> / <a href="https://docs.google.com/presentation/d/1Wku4Rgw2Zlva15D6ydMdy4QRs7GJiOV8QhswgiKQEqc/edit" target="_blank" rel="noopener">📄資料</a>', icon:'🔥', multi:true, items:[
+    '継続力とは(低い人の特徴)','継続力が低いままだと','継続力の上げ方','継続力を高めるとどんな未来が待ってるか',
+  ], perItemReward:{継続力:5}, xp:0, reward:{}},
+  {name:'魅了力向上講座', desc:'FANTS資料(全15トピック)を視聴する(1トピックごとに行動力+0.5/包容力+0.5)。<a href="https://docs.google.com/document/d/1P2zkq_Ah84U8baghz1_q6JNESUycl8Sm7GDV6iVWijY/edit" target="_blank" rel="noopener">📄資料</a>', icon:'✨', multi:true, items:[
+    '魅了力とは何か？','経験値＝エネルギーレベル','なぜ経験値が「エネルギーレベル」になるのか？',
+    '経験値は行動力につながる','経験値は包容力にもつながる','エネルギーレベルが低いと「相手の反応」に振り回されやすくなる',
+    '行動力エネルギーを「行動」に変える','行動力「丸投げ」でも「独断」でもない','包容力エネルギーを「余裕」に変える',
+    '包容力相手の「NO」を受け止める','包容力「感情に反射しない」','「行動力×包容力」が魅了力になる',
+    'エネルギーレベルを上げる','経験値は「成功」だけでは増えない','エネルギーが高い男は「自分の人生」を持っている',
+  ], perItemReward:{行動力:0.5, 包容力:0.5}, xp:0, reward:{}},
 ];
 
 const LV_THRESHOLDS = [0,100,250,450,700,1000,1400,1900,2500,3200];
@@ -221,17 +654,61 @@ const LV_RANKS = ['見習い冒険者','新米冒険者','駆け出し冒険者'
 // ─── STATE ──────────────────────────────────────────
 let state = {
   avatarIdx: 2,
-  stats: {外見力:0,デート力:0,魅了力:0,コミュ力:0},
+  stats: Object.fromEntries(STATS.map(s => [s.key, 0])),
+  impassCount: 0,
+  mindmapCount: 0,
+  manualDone: [],
   done: [],
+  multiChecks: {},
+  dateApoCount: 0,
+  dateSuccessCount: 0,
+  dateSecondCount: 0,
+  confessionOkCount: 0,
+  confessionFailCount: 0,
+  dateLogs: [],
+  myBirth: '',
 };
 function save(){ localStorage.setItem('lqm', JSON.stringify(state)); }
+// 読み込んだstateに不足フィールドを補完する（旧セーブデータ・他バージョンの冒険の書ファイルにも対応）。
+// 今後ステータスやチェックリストが増減しても、ここを直せば読み込み側は壊れない。
+function normalizeState(s){
+  s = s && typeof s === 'object' ? s : {};
+  s.stats = Object.assign(Object.fromEntries(STATS.map(x => [x.key, 0])), s.stats || {});
+  if(typeof s.impassCount !== 'number') s.impassCount = 0;
+  if(typeof s.mindmapCount !== 'number') s.mindmapCount = 0;
+  if(!Array.isArray(s.manualDone)) s.manualDone = [];
+  if(!Array.isArray(s.done)) s.done = [];
+  if(!s.multiChecks || typeof s.multiChecks !== 'object' || Array.isArray(s.multiChecks)) s.multiChecks = {};
+  // 旧セーブデータ互換: typeMastery配列(タイプ診断マスター専用の古い保存形式)をmultiChecksへ移行
+  if(Array.isArray(s.typeMastery)){
+    if(!s.multiChecks['タイプ診断マスター']) s.multiChecks['タイプ診断マスター'] = s.typeMastery;
+    delete s.typeMastery;
+  }
+  QUESTS.forEach(q => { if(q.multi && !Array.isArray(s.multiChecks[q.name])) s.multiChecks[q.name] = []; });
+  if(typeof s.dateApoCount !== 'number') s.dateApoCount = 0;
+  if(typeof s.dateSuccessCount !== 'number') s.dateSuccessCount = 0;
+  if(typeof s.dateSecondCount !== 'number') s.dateSecondCount = 0;
+  if(typeof s.confessionOkCount !== 'number') s.confessionOkCount = 0;
+  if(typeof s.confessionFailCount !== 'number') s.confessionFailCount = 0;
+  if(!Array.isArray(s.dateLogs)) s.dateLogs = [];
+  if(typeof s.myBirth !== 'string') s.myBirth = '';
+  if(typeof s.avatarIdx !== 'number') s.avatarIdx = 2;
+  return s;
+}
 function load(){
   const d = localStorage.getItem('lqm');
-  if(d){ state = JSON.parse(d); }
+  if(d){ try{ state = JSON.parse(d); }catch(e){} }
+  state = normalizeState(state);
 }
 
 // ─── LEVEL CALC ─────────────────────────────────────
-function totalXP(){ return QUESTS.reduce((s,q,i)=>s+(state.done.includes(i)?q.xp:0),0); }
+function totalXP(){
+  const questXP = QUESTS.reduce((s,q,i)=>s+(state.done.includes(i)?q.xp:0),0);
+  // multi系クエスト(タイプ診断マスター/タイプ別ファッション講座など)は1項目チェックごとに+perItemXP(ボーナスは上のQUESTS達成分でカウント済み)
+  const multiXP = QUESTS.filter(q=>q.multi&&q.perItemXP).reduce((s,q)=>s+(state.multiChecks[q.name]||[]).length*q.perItemXP,0);
+  const dateApoXP = (state.dateApoCount||0) * 0.5; // デートアポクリア！1回ごとに+0.5XP
+  return questXP + multiXP + dateApoXP;
+}
 function calcLv(xp){
   for(let i=LV_THRESHOLDS.length-1;i>=0;i--) if(xp>=LV_THRESHOLDS[i]) return i+1;
   return 1;
@@ -241,7 +718,7 @@ function statLv(v){ return Math.min(10,Math.floor(v/10)+1); }
 // ─── RENDER ─────────────────────────────────────────
 function renderAvatar(){
   const av = AVATARS[state.avatarIdx];
-  document.getElementById('av-icon').textContent = av.icon;
+  document.getElementById('av-icon').outerHTML = iconImg(av, 'av-display').replace('class="icon av-display"','class="icon av-display" id="av-icon"');
   document.getElementById('av-name').textContent = av.name;
   document.getElementById('av-sub').textContent  = av.sub;
 }
@@ -258,10 +735,89 @@ function renderOverall(){
   document.getElementById('xp-txt').textContent   = xp + ' / ' + nxt + ' XP';
 }
 
+function radarSVG(){
+  const w = 320, h = 260, cx = w/2, cy = h/2, r = 68;
+  const n = RADAR_STATS.length;
+  const angle = i => (Math.PI*2/n)*i - Math.PI/2;
+  const pt = (i, frac) => [cx + Math.cos(angle(i))*r*frac, cy + Math.sin(angle(i))*r*frac];
+  let rings = '';
+  [0.25,0.5,0.75,1].forEach(frac => {
+    const pts = RADAR_STATS.map((_,i)=>pt(i,frac).join(',')).join(' ');
+    rings += `<polygon points="${pts}" fill="none" stroke="#2a2a4a" stroke-width="1"/>`;
+  });
+  let axes = '';
+  RADAR_STATS.forEach((_,i) => {
+    const [x,y] = pt(i,1);
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#2a2a4a" stroke-width="1"/>`;
+  });
+  const dataPts = RADAR_STATS.map((st,i)=>pt(i, statValue(st.key)/100).join(',')).join(' ');
+  let labels = '';
+  RADAR_STATS.forEach((st,i) => {
+    const [x,y] = pt(i,1.45);
+    const val = statValue(st.key);
+    const dx = Math.cos(angle(i));
+    const anchor = dx > 0.3 ? 'start' : dx < -0.3 ? 'end' : 'middle';
+    labels += `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle"
+      font-size="11" fill="${st.color}" font-weight="700">${st.icon} ${st.key}</text>
+      <text x="${x}" y="${y+13}" text-anchor="${anchor}" font-size="9" fill="#8888AA">${val}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" class="radar-svg">
+    ${rings}${axes}
+    <polygon points="${dataPts}" fill="rgba(245,166,35,.28)" stroke="var(--gold)" stroke-width="2"/>
+    ${labels}
+  </svg>`;
+}
+
 function renderStats(){
   const c = document.getElementById('stats-container');
   c.innerHTML = '';
-  STATS.forEach(st => {
+
+  const radarWrap = document.createElement('div');
+  radarWrap.className = 'radar-wrap';
+  radarWrap.innerHTML = radarSVG() + `<div class="radar-legend">${RADAR_STATS.map(st => {
+    const val = statValue(st.key);
+    let ctrl;
+    if(st.key==='経験値'){
+      ctrl = `<div class="stat-adj xp-adj">
+        <span class="impass-count">マインドマップ作成回数${state.mindmapCount||0}回<button class="adj-btn adj-btn-mini" onclick="adjMindmap(-1)">−</button><button class="adj-btn adj-btn-mini" onclick="adjMindmap(1)">＋</button>
+        ／インパス${state.impassCount||0}回<button class="adj-btn adj-btn-mini" onclick="adjImpass(-1)">−</button><button class="adj-btn adj-btn-mini" onclick="adjImpass(1)">＋</button>
+        ／デート${state.dateLogs.length}件（自動計測、誤カウント時は±で補正可）</span>
+      </div>`;
+    } else if(st.derived){
+      ctrl = `<div class="stat-adj"><span class="derived-note">自動計算</span></div>`;
+    } else {
+      ctrl = `<div class="stat-adj">
+        <button class="adj-btn" onclick="adjStat('${st.key}',-10)">−10</button>
+        <button class="adj-btn" onclick="adjStat('${st.key}',+10)">+10</button>
+      </div>`;
+    }
+    return `<div class="radar-legend-row">
+      <span class="stat-name">${st.icon} ${st.key}</span>
+      <span class="stat-lv" style="color:${st.color}">Lv.${statLv(val)}（${val}点）</span>
+      ${ctrl}
+    </div>`;
+  }).join('')}</div>`;
+  c.appendChild(radarWrap);
+
+  const analysisRow = document.createElement('div');
+  analysisRow.className = 'radar-legend-row analysis-row';
+  {
+    const val = statValue(ANALYSIS_STAT.key);
+    analysisRow.innerHTML = `
+      <span class="stat-name">${ANALYSIS_STAT.icon} ${ANALYSIS_STAT.key}</span>
+      <span class="stat-lv" style="color:${ANALYSIS_STAT.color}">Lv.${statLv(val)}（${val}点）</span>
+      <div class="stat-adj">
+        <span class="impass-count">インパス${state.impassCount||0}回<button class="adj-btn adj-btn-mini" onclick="adjImpass(-1)">−</button><button class="adj-btn adj-btn-mini" onclick="adjImpass(1)">＋</button>（自動計測、誤カウント時は±で補正可）</span>
+      </div>`;
+  }
+  c.appendChild(analysisRow);
+
+  const extraHeading = document.createElement('div');
+  extraHeading.className = 'stats-sub-heading';
+  extraHeading.textContent = '追加ステータス';
+  c.appendChild(extraHeading);
+
+  EXTRA_STATS.forEach(st => {
     const val  = Math.min(100, state.stats[st.key] || 0);
     const lv   = statLv(val);
     const div  = document.createElement('div');
@@ -269,7 +825,7 @@ function renderStats(){
     div.innerHTML = `
       <div class="stat-head">
         <span class="stat-name">${st.icon} ${st.key}</span>
-        <span class="stat-lv" style="color:${st.color}">Lv.${lv}</span>
+        <span class="stat-lv" style="color:${st.color}">Lv.${lv}（${val}点）</span>
       </div>
       <div class="stat-bar-bg">
         <div class="stat-bar-fill" style="width:${val}%;background:${st.color}"></div>
@@ -281,6 +837,25 @@ function renderStats(){
       </div>`;
     c.appendChild(div);
   });
+
+  const manualHeading = document.createElement('div');
+  manualHeading.className = 'stats-sub-heading';
+  manualHeading.textContent = '📚 LCIQマニュアル動画視聴（受講でポイント加算）';
+  c.appendChild(manualHeading);
+
+  const manualList = document.createElement('div');
+  manualList.className = 'manual-list';
+  MANUAL_COURSES.forEach(m => {
+    const checked = state.manualDone.includes(m.key);
+    const amount = m.amount || 10;
+    const row = document.createElement('label');
+    row.className = 'manual-row' + (checked ? ' done' : '');
+    row.innerHTML = `<input type="checkbox" ${checked?'checked':''} onchange="toggleManual('${m.key}')">
+      <span class="manual-name">${m.name}</span>
+      <span class="manual-target">→ ${m.key}+${amount}</span>`;
+    manualList.appendChild(row);
+  });
+  c.appendChild(manualList);
 }
 
 function renderQuests(){
@@ -290,20 +865,201 @@ function renderQuests(){
   qc.textContent = `${state.done.length} / ${QUESTS.length} 完了`;
   QUESTS.forEach((q,i) => {
     const done = state.done.includes(i);
-    const rewardTxt = Object.entries(q.reward).map(([k,v])=>`${k}+${v}`).join(' / ');
+    const rewardTxt = q.reward ? Object.entries(q.reward).map(([k,v])=>`${k}+${v}`).join(' / ') : '';
     const div = document.createElement('div');
-    div.className = 'q-item' + (done?' done':'');
+    div.className = 'q-item' + (done?' done':'') + (q.multi||q.counter||q.choice?' q-item-multi':'');
+    const checkedCount = q.multi ? (state.multiChecks[q.name]||[]).length : 0;
+    let rewardLine;
+    if(q.choice){
+      rewardLine = `🎁 ${q.options.map(opt => opt.perClickReward
+        ? `${opt.label}: ${Object.entries(opt.perClickReward).map(([k,v])=>`${k}+${v}`).join('/')}`
+        : `${opt.label}: 経験値+10`
+      ).join(' ／ ')}`;
+    } else if(q.counter){
+      const count = state[q.countKey]||0;
+      if(q.perClickReward){
+        rewardLine = `1回ごとに${Object.entries(q.perClickReward).map(([k,v])=>`${k}+${v}`).join('/')}（合計${count}回分）`;
+      } else {
+        rewardLine = `1回+${q.perClickXP}XP（合計 ${count*q.perClickXP}XP）`;
+      }
+    } else if(q.multi){
+      const perItemTxt = q.perItemReward
+        ? `1つ視聴ごとに${Object.entries(q.perItemReward).map(([k,v])=>`${k}+${v}`).join('/')}`
+        : `理解1つごとに+${q.perItemXP}P`;
+      const bonusParts = [];
+      if(rewardTxt) bonusParts.push(rewardTxt);
+      if(q.xp) bonusParts.push(`+${q.xp}XP`);
+      rewardLine = `🎁 ${perItemTxt}${bonusParts.length? ` ／ 全部達成でボーナス${bonusParts.join(' / ')}`:''}`;
+    } else {
+      rewardLine = `🎁 ${rewardTxt}  (+${q.xp} XP)`;
+    }
     div.innerHTML = `
       <span class="q-icon">${q.icon}</span>
       <div class="q-body">
-        <div class="q-name">${q.name}</div>
+        <div class="q-name">${q.name}${q.multi?` <span class="q-multi-count">(${checkedCount}/${q.items.length})</span>`:''}${q.counter?` <span class="q-multi-count">(${state[q.countKey]||0}回)</span>`:''}${q.choice?` <span class="q-multi-count">(成功${state[q.options[0].countKey]||0}／失敗${state[q.options[1].countKey]||0})</span>`:''}${q.infoKey?` <button class="q-info-btn" onclick="event.stopPropagation();openInfoModal('${q.infoKey}')">📖 詳しく</button>`:''}</div>
         <div class="q-desc">${q.desc}</div>
-        <div class="q-reward">🎁 ${rewardTxt}  (+${q.xp} XP)</div>
+        <div class="q-reward">${rewardLine}</div>
+        ${q.multi? renderMultiChips(q) : ''}
+        ${q.counter? `<div class="q-counter-ctrl"><button class="adj-btn" onclick="event.stopPropagation();adjCounter(${i},-1)">−</button><button class="adj-btn" onclick="event.stopPropagation();adjCounter(${i},1)">＋ ${q.name.includes('デート')?'デート決定！':'記録する'}</button></div>` : ''}
+        ${q.choice? `<div class="q-counter-ctrl">${q.options.map((opt,oi)=>`<button class="adj-btn" onclick="event.stopPropagation();adjChoice(${i},${oi},1)">${opt.label}</button><button class="adj-btn adj-btn-mini" onclick="event.stopPropagation();adjChoice(${i},${oi},-1)">−</button>`).join('')}</div>` : ''}
       </div>
-      <span class="q-check"></span>`;
-    div.onclick = () => toggleQuest(i);
+      ${(q.multi||q.counter||q.choice)? '' : '<span class="q-check"></span>'}`;
+    if(!q.multi && !q.counter && !q.choice) div.onclick = () => toggleQuest(i);
     c.appendChild(div);
   });
+}
+
+// counter系クエスト(デートアポクリア！/初デート成功など)共通の±ボタン処理
+function adjCounter(qi, delta){
+  const prevLv = calcLv(totalXP());
+  const q = QUESTS[qi];
+  state[q.countKey] = Math.max(0, (state[q.countKey]||0) + delta);
+  // perClickRewardが設定されていれば、対象ステータスへ直接反映(経験値のような派生ステータスは対象外、各stat計算式側で直接カウントを参照する)
+  if(q.perClickReward){
+    Object.entries(q.perClickReward).forEach(([k,v])=>{
+      state.stats[k] = delta > 0
+        ? Math.min(100,(state.stats[k]||0)+v)
+        : Math.max(0,(state.stats[k]||0)-v);
+    });
+  }
+  save();
+  renderAll();
+  const newLv = calcLv(totalXP());
+  if(newLv > prevLv) showLevelUp(newLv);
+}
+
+// choice系クエスト(告白デートなど、結果によって報酬が分かれるもの)の±ボタン処理
+function adjChoice(qi, optIdx, delta){
+  const prevLv = calcLv(totalXP());
+  const opt = QUESTS[qi].options[optIdx];
+  state[opt.countKey] = Math.max(0, (state[opt.countKey]||0) + delta);
+  if(opt.perClickReward){
+    Object.entries(opt.perClickReward).forEach(([k,v])=>{
+      state.stats[k] = delta > 0
+        ? Math.min(100,(state.stats[k]||0)+v)
+        : Math.max(0,(state.stats[k]||0)-v);
+    });
+  }
+  // perClickRewardが無いoption(告白デートの「失敗」など)は経験値ステータス側の計算式で直接カウントを参照する
+  save();
+  renderAll();
+  const newLv = calcLv(totalXP());
+  if(newLv > prevLv) showLevelUp(newLv);
+}
+
+// クエストの補足ガイド(長文)をポップアップ表示する
+const QUEST_INFO = {
+  confession: {
+    title: '💍 告白デートのポイント',
+    body: `<b>恋愛がうまくいくパターンは5つ</b>
+1. 相手の自己肯定感を満たす
+2. 感情の共有・共感
+3. 脳幹錯誤を起こす(恋愛トーク)
+4. 好きの返報性(好きの仄かし)
+5. 単純接触頻度
+
+この5つが初回デートでできてしまえば、その日にお付き合いすることだってできます。
+
+<b>告白とは、一か八かではなく答え合わせ。</b>
+どのくらい会ったかではなく、どう過ごせたかが重要です。告白前の食事中に必ず出会った頃から今までのデートの振り返りトークをすること。女性はビジュアライズが得意だからこそ、回想させることで「回数」ではなく「どう過ごしたか」を連想させます(^-^)
+
+<b>告白前の10個のチェック</b>
+1. 下の名前でお互い呼び合っている
+2. 敬語がはずれている
+3. 感情に共感している(ネガポジ)
+4. 相手からも質問や共感はあるか
+5. 恋愛トーク
+6. 深い自己開示ができてる
+7. 内面を褒めている(存在を認めてる)
+8. 好きの仄めかしができている
+9. 手を握れる仲(OKもらえるか確信がない時のバロメーターになる)
+10. お互いのことを6割理解しているか
+
+この10個全て出来ていなかったとしても、8割出来てるなーって思うなら「答え合わせ」になります。
+
+<b>告白のシチュエーション</b>
+人気の少ないところ、薄暗い雰囲気の良いところ。お店の場合、席間隔が空いていること。
+※YESを言いやすい環境を作ることが大切
+
+<b>告白のタイミング</b>
+お持たせやプレゼントを贈る。足を止めることと話題を変えること。そして、渡した時に「ありがとう」の言葉が返ってきたら、そこがいざ告白のタイミングです。保留になることも想定しておくこと。保留されても会える環境を作っておくのが重要。告白前に次回のデートの約束(日程まで)を決めておくことがポイントです。
+
+<b>保留になる場合</b>
+1. 付き合うことの不安の解消ができていない
+2. お互いのことを深く話してない
+3. 感情の共感・感情の交換ができていない
+
+このどれかです。保留でもはっきり断られた(NG)わけではないので、あくまでも前向きに捉えること！これが大切です。
+
+内容はもっと深いですが、詳しくはコンサル時にお話しします！`
+  }
+};
+function openInfoModal(key){
+  const info = QUEST_INFO[key];
+  if(!info) return;
+  document.getElementById('infoModalTitle').textContent = info.title;
+  const escaped = info.body.split('\n').map(line => {
+    const m = line.match(/^<b>(.*)<\/b>$/);
+    return m ? `<b>${escapeInfoHtml(m[1])}</b>` : escapeInfoHtml(line);
+  }).join('\n');
+  document.getElementById('infoModalBody').innerHTML = escaped.replace(/\n/g, '<br>');
+  document.getElementById('infoModal').style.display = 'flex';
+}
+function escapeInfoHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function closeInfoModal(){
+  document.getElementById('infoModal').style.display = 'none';
+}
+
+// multi系クエスト用の項目名/リンクを取得するヘルパー(itemは文字列 or {label,url})
+function itemLabel(item){ return typeof item === 'string' ? item : item.label; }
+function itemUrl(item){ return typeof item === 'object' && item.url ? item.url : null; }
+
+// multi系クエスト(タイプ診断マスター/タイプ別ファッション講座など)の項目チェックチップを描画
+function renderMultiChips(q){
+  return `<div class="q-type-chips">${q.items.map(item=>{
+    const label = itemLabel(item), url = itemUrl(item);
+    const on = (state.multiChecks[q.name]||[]).includes(label);
+    const linkHtml = url ? `<a href="${url}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="q-type-chip-link">🔗</a>` : '';
+    return `<span class="q-type-chip${on?' on':''}" onclick="event.stopPropagation();toggleMultiItem('${q.name.replace(/'/g,"\\'")}','${label.replace(/'/g,"\\'")}')">${label}</span>${linkHtml}`;
+  }).join('')}</div>`;
+}
+
+function toggleMultiItem(questName, label){
+  const prevLv = calcLv(totalXP());
+  const checks = state.multiChecks[questName] || (state.multiChecks[questName] = []);
+  const idx = checks.indexOf(label);
+  const turningOn = idx < 0;
+  if(idx >= 0) checks.splice(idx,1);
+  else checks.push(label);
+
+  const qi = QUESTS.findIndex(q => q.name === questName);
+  const q = QUESTS[qi];
+
+  // 項目を1つチェック/解除するごとに、対象ステータスへ直接反映(perItemRewardが設定されている場合)
+  if(q.perItemReward){
+    Object.entries(q.perItemReward).forEach(([k,v])=>{
+      state.stats[k] = turningOn
+        ? Math.min(100,(state.stats[k]||0)+v)
+        : Math.max(0,(state.stats[k]||0)-v);
+    });
+  }
+
+  // 全項目チェックしたらそのクエストを自動達成扱いにする(ボーナスXP+ステータス付与、あれば)。1つでも外れたら未達成に戻す(付与済みのボーナスも取り消す)
+  const wasDone = state.done.includes(qi);
+  const nowComplete = checks.length === q.items.length;
+  if(nowComplete && !wasDone){
+    state.done.push(qi);
+    Object.entries(q.reward||{}).forEach(([k,v])=>{ state.stats[k] = Math.min(100,(state.stats[k]||0)+v); });
+  } else if(!nowComplete && wasDone){
+    state.done.splice(state.done.indexOf(qi),1);
+    Object.entries(q.reward||{}).forEach(([k,v])=>{ state.stats[k] = Math.max(0,(state.stats[k]||0)-v); });
+  }
+  save();
+  renderAll();
+  const newLv = calcLv(totalXP());
+  if(newLv > prevLv) showLevelUp(newLv);
 }
 
 function renderAll(){
@@ -335,6 +1091,31 @@ function adjStat(key, delta){
   state.stats[key] = Math.max(0, Math.min(100, (state.stats[key]||0) + delta));
   save(); renderStats(); renderOverall();
 }
+function useMindmap(){
+  state.mindmapCount = (state.mindmapCount||0) + 1;
+  save(); renderStats(); renderOverall();
+}
+function adjMindmap(delta){
+  state.mindmapCount = Math.max(0, (state.mindmapCount||0) + delta);
+  save(); renderStats(); renderOverall();
+}
+function adjImpass(delta){
+  state.impassCount = Math.max(0, (state.impassCount||0) + delta);
+  save(); renderStats(); renderOverall();
+}
+function toggleManual(key){
+  const course = MANUAL_COURSES.find(m => m.key === key);
+  const amount = (course && course.amount) || 10;
+  const idx = state.manualDone.indexOf(key);
+  if(idx >= 0){
+    state.manualDone.splice(idx,1);
+    if(!course || !course.derived) state.stats[key] = Math.max(0, (state.stats[key]||0) - amount);
+  } else {
+    state.manualDone.push(key);
+    if(!course || !course.derived) state.stats[key] = Math.min(100, (state.stats[key]||0) + amount);
+  }
+  save(); renderStats(); renderOverall();
+}
 
 function showLevelUp(lv){
   const t = document.getElementById('toast');
@@ -354,7 +1135,7 @@ function buildModal(){
   AVATARS.forEach((av,i) => {
     const d = document.createElement('div');
     d.className = `av-card ${av.type}`;
-    d.innerHTML = `<div class="av-icon">${av.icon}</div><div class="av-name">${av.name}</div>`;
+    d.innerHTML = `${iconImg(av,'av-icon')}<div class="av-name">${av.name}</div>`;
     d.onclick = () => selectAvatar(i);
     g.appendChild(d);
   });
@@ -366,19 +1147,497 @@ function selectAvatar(i){
   renderAvatar();
 }
 
-// ─── DEMO / RESET ────────────────────────────────────
-function loadDemo(){
-  const prevLv = calcLv(totalXP());
-  state.done = [0,1,3,4];
-  state.stats = {外見力:30, デート力:30, 魅了力:30, コミュ力:40};
-  save(); renderAll();
-  const newLv = calcLv(totalXP());
-  if(newLv > prevLv) showLevelUp(newLv);
-}
+// ─── RESET ──────────────────────────────────────────
 function resetAll(){
-  state = {avatarIdx:state.avatarIdx, stats:{外見力:0,デート力:0,魅了力:0,コミュ力:0}, done:[]};
+  if(!confirm('すべてのステータス・クエスト達成状況・チェックリストをリセットします。よろしいですか？\n（アバターの選択は保持されます）')) return;
+  state = normalizeState({avatarIdx: state.avatarIdx});
   save(); renderAll();
+  document.getElementById('dl-mybirth').value = '';
+  renderDateLogs();
+  alert('リセットしました🔄');
 }
+
+// ─── 冒険の書（ファイル保存・読込） ───────────────────
+// 見た目はMarkdownの「冒険の書」、中身はJSONのセーブデータをそのまま埋め込む。
+// ステータスやチェックリストの項目が増減しても、STATS/RADAR_STATS/MANUAL_COURSES/QUESTSを
+// 動的に参照しているので出力側は自動的に追従する。読込側はJSONブロックのみを見るので壊れない。
+function buildBookMarkdown(){
+  const av = AVATARS[state.avatarIdx];
+  const xp = totalXP();
+  const lv = calcLv(xp);
+  const lines = [];
+  lines.push(`# 🗺️ 冒険の書 — ${av.name}`);
+  lines.push('');
+  lines.push(`> 保存日時: ${new Date().toLocaleString('ja-JP')}`);
+  lines.push('');
+  lines.push(`## 総合レベル`);
+  lines.push(`Lv.${lv}（${LV_RANKS[lv-1]||LV_RANKS[LV_RANKS.length-1]}） — ${xp} XP`);
+  lines.push('');
+  lines.push(`## ステータス`);
+  RADAR_STATS.forEach(st => {
+    lines.push(`- ${st.icon} ${st.key}: Lv.${statLv(statValue(st.key))}（${statValue(st.key)}）${st.derived?'（自動計算）':''}`);
+  });
+  lines.push(`- ${ANALYSIS_STAT.icon} ${ANALYSIS_STAT.key}: Lv.${statLv(statValue(ANALYSIS_STAT.key))}（${statValue(ANALYSIS_STAT.key)}）（自動計算）`);
+  lines.push('');
+  lines.push(`## 追加ステータス`);
+  EXTRA_STATS.forEach(st => {
+    lines.push(`- ${st.icon} ${st.key}: Lv.${statLv(state.stats[st.key]||0)}（${state.stats[st.key]||0}）`);
+  });
+  lines.push('');
+  lines.push(`## LCIQマニュアル動画視聴`);
+  MANUAL_COURSES.forEach(m => {
+    lines.push(`- [${state.manualDone.includes(m.key)?'x':' '}] ${m.name}`);
+  });
+  lines.push('');
+  lines.push(`## クエスト（${state.done.length} / ${QUESTS.length} 達成）`);
+  QUESTS.forEach((q,i) => {
+    if(q.counter){
+      lines.push(`- ${q.name}: ${state[q.countKey]||0}回`);
+      return;
+    }
+    if(q.choice){
+      lines.push(`- ${q.name}: ${q.options.map(opt=>`${opt.label} ${state[opt.countKey]||0}回`).join(' / ')}`);
+      return;
+    }
+    lines.push(`- [${state.done.includes(i)?'x':' '}] ${q.name}`);
+    if(q.multi){
+      const checks = state.multiChecks[q.name] || [];
+      lines.push(`  - 進捗: ${checks.length} / ${q.items.length}`);
+      q.items.forEach(item => {
+        const label = itemLabel(item);
+        lines.push(`    - [${checks.includes(label)?'x':' '}] ${label}`);
+      });
+    }
+  });
+  lines.push('');
+  lines.push(`## その他の記録`);
+  lines.push(`- インパス診断ツール使用回数: ${state.impassCount||0}回`);
+  lines.push(`- デートマインドマップ作成回数: ${state.mindmapCount||0}回`);
+  lines.push('');
+  lines.push(`## 📔 デートログ（${state.dateLogs.length}件）`);
+  lines.push(`MyBirth: ${state.myBirth || '(未設定)'}`);
+  lines.push('');
+  [...state.dateLogs].reverse().forEach((e,i) => {
+    lines.push(`### ${i+1}. ${e.datetime || '(日時未記入)'} ${e.name ? '｜' + e.name : ''} ${e.tool ? '｜' + e.tool : ''}`);
+    lines.push(`- 服装: ${e.outfit || '-'} ／ お店: ${e.shop || '-'} ／ 金額: ${e.cost ? (parseInt(e.cost,10)||0).toLocaleString('ja-JP') : '-'}円 ／ 今回の女性とのデート回数: ${e.visitCount || '-'}回目`);
+    lines.push(`- お相手: 年齢${e.age||'-'}${e.age?ageDiffLabel(e.age):''} ／ 職業${e.job||'-'} ／ 住まい${e.home||'-'} ／ タイプ${typeLabelWithSub(e.type)||'-'}`);
+    if(e.goal) lines.push(`- 今回の目標: ${e.goal}`);
+    if(e.talk) lines.push(`- 会話の内容: ${e.talk}`);
+    if(e.good) lines.push(`- うまくいったこと: ${e.good}`);
+    if(e.review) lines.push(`- 感想・改善点: ${e.review}`);
+    if(e.followup) lines.push(`- その後のやり取り/次回約束: ${e.followup}`);
+    lines.push('');
+  });
+  lines.push(`---`);
+  lines.push(`## 💾 セーブデータ（この下のブロックは編集・削除しないでください。読込時に使用します）`);
+  lines.push('```json');
+  lines.push(JSON.stringify(state, null, 2));
+  lines.push('```');
+  lines.push('');
+  return lines.join('\n');
+}
+let savedFileHandle = null; // File System Access API対応ブラウザ(PC)で、2回目以降は同じファイルに無言で上書きするための保存先ハンドル
+
+async function saveBookFile(){
+  const md = buildBookMarkdown();
+  const av = AVATARS[state.avatarIdx];
+  const stamp = new Date().toISOString().slice(0,10);
+  const filename = `冒険の書_${av.name}_${stamp}.md`;
+
+  // 対応ブラウザ(PC): 既に保存先が決まっていればダイアログなしで上書き、初回だけ保存先を選ばせる
+  if(window.showSaveFilePicker){
+    try{
+      if(!savedFileHandle){
+        savedFileHandle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{description:'Markdown', accept:{'text/markdown':['.md']}}]
+        });
+      }
+      const writable = await savedFileHandle.createWritable();
+      await writable.write(md);
+      await writable.close();
+      alert('冒険の書を上書き保存しました📖\n' + savedFileHandle.name);
+      return;
+    }catch(e){
+      if(e && e.name === 'AbortError') return; // ユーザーがキャンセル
+      savedFileHandle = null; // 失敗時は保存先情報を破棄し、次回また選び直させる
+      // 非対応・失敗時は下のダウンロードにフォールバック
+    }
+  }
+
+  // フォールバック(モバイル等・非対応ブラウザ): 毎回新規ダウンロード
+  const blob = new Blob([md], {type:'application/octet-stream'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  alert('冒険の書のダウンロードを開始しました📖\n' + filename
+    + '\n\nブラウザに表示される保存の確認・通知に従って完了してください（既定はダウンロードフォルダ）。');
+}
+function loadBookFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const text = String(reader.result);
+    const m = text.match(/```json\s*([\s\S]*?)```/);
+    if(!m){ alert('セーブデータ（JSONブロック）が見つかりませんでした。冒険の書ファイルを選択してください。'); return; }
+    let parsed;
+    try{ parsed = JSON.parse(m[1]); }
+    catch(e){ alert('セーブデータの読み込みに失敗しました。ファイルが壊れている可能性があります。'); return; }
+    state = normalizeState(parsed);
+    save(); renderAll();
+    document.getElementById('dl-mybirth').value = state.myBirth || '';
+    renderDateLogs();
+    alert('冒険の書を読み込みました📖');
+  };
+  reader.onerror = () => alert('ファイルの読み込みに失敗しました。');
+  reader.readAsText(file, 'utf-8');
+}
+
+// ─── 📔 デートログ ───────────────────────────────────
+function toggleDateLogAccordion(){
+  document.getElementById('datelog-body').classList.toggle('closed');
+  document.getElementById('datelog-toggle-icon').classList.toggle('closed');
+}
+function dlEscapeHtml(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── MyBirth（自分の生年月日） ───
+function calcAgeFromBirth(birthStr){
+  if(!birthStr) return null;
+  const birth = new Date(birthStr);
+  if(isNaN(birth)) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age;
+}
+function onMyBirthChange(){
+  state.myBirth = document.getElementById('dl-mybirth').value;
+  save();
+  updateAgeDiffPreview();
+}
+function ageDiffLabel(partnerAge){
+  const myAge = calcAgeFromBirth(state.myBirth);
+  const n = parseInt(partnerAge, 10);
+  if(myAge === null || !n) return '';
+  const diff = n - myAge;
+  return diff === 0 ? '（同い年）' : diff > 0 ? `（+${diff}歳）` : `（${diff}歳）`;
+}
+function updateAgeDiffPreview(){
+  const val = document.getElementById('dl-age').value;
+  document.getElementById('dl-age-diff').textContent = ageDiffLabel(val);
+}
+
+// ─── 出会ったきっかけ（「その他」選択時のみ手入力欄を表示） ───
+function onDlToolChange(){
+  const wrap = document.getElementById('dl-tool-other-wrap');
+  wrap.style.display = document.getElementById('dl-tool').value === 'その他' ? '' : 'none';
+}
+function dlToolValue(){
+  const sel = document.getElementById('dl-tool').value;
+  if(sel === 'その他') return document.getElementById('dl-tool-other').value.trim();
+  return sel;
+}
+
+// ─── 金額（ステッパーボタン／手入力どちらも可、カンマ区切り表示） ───
+function dlCostRaw(str){
+  return parseInt(String(str).replace(/[^0-9]/g, ''), 10) || 0;
+}
+function adjDlCost(delta){
+  const input = document.getElementById('dl-cost');
+  const next = Math.max(0, dlCostRaw(input.value) + delta);
+  input.value = next.toLocaleString('ja-JP');
+}
+function onDlCostInput(){
+  const input = document.getElementById('dl-cost');
+  const next = Math.max(0, dlCostRaw(input.value));
+  input.value = next.toLocaleString('ja-JP');
+}
+
+function addDateLog(){
+  const get = id => document.getElementById(id).value.trim();
+  const entry = {
+    id: Date.now(),
+    datetime: get('dl-datetime'),
+    name: get('dl-name'),
+    tool: dlToolValue(),
+    outfit: get('dl-outfit'),
+    shop: get('dl-shop'),
+    cost: String(dlCostRaw(get('dl-cost'))),
+    visitCount: get('dl-visitCount'),
+    age: get('dl-age'),
+    job: get('dl-job'),
+    home: get('dl-home'),
+    type: get('dl-type'),
+    goal: get('dl-goal'),
+    talk: get('dl-talk'),
+    good: get('dl-good'),
+    review: get('dl-review'),
+    followup: get('dl-followup'),
+  };
+  if(!entry.datetime && !entry.tool && !entry.talk){
+    alert('最低限「デート日時」か「出会ったきっかけ」か「会話の内容」のいずれかを入力してください');
+    return;
+  }
+  state.dateLogs.push(entry);
+  save();
+  document.getElementById('datelog-form').reset();
+  document.getElementById('dl-cost').value = '0';
+  document.getElementById('dl-age-diff').textContent = '';
+  document.getElementById('dl-tool-other-wrap').style.display = 'none';
+  renderDateLogs();
+  renderStats(); renderOverall(); // 経験値(デートログ件数×1P)の表示に即反映させる
+}
+function deleteDateLog(id){
+  if(!confirm('このデートログを削除しますか？')) return;
+  state.dateLogs = state.dateLogs.filter(e => e.id !== id);
+  save();
+  renderDateLogs();
+  renderStats(); renderOverall();
+}
+function updateDateLogField(id, field, value){
+  const entry = state.dateLogs.find(e => e.id === id);
+  if(!entry) return;
+  entry[field] = value.trim();
+  save();
+}
+function renderDateLogSummary(){
+  const box = document.getElementById('dl-summary');
+  const logs = state.dateLogs;
+  if(logs.length === 0){ box.innerHTML = '<b>通算デート回数:</b> 計0回'; return; }
+  const buckets = {1:0, 2:0, 3:0, 4:0, 5:0, '6+':0};
+  logs.forEach(e => {
+    const n = parseInt(e.visitCount, 10);
+    if(!n || n < 1) return;
+    if(n >= 6) buckets['6+']++; else buckets[n]++;
+  });
+  box.innerHTML = `<b>通算デート回数:</b> 計${logs.length}回　`
+    + `／ 1回目: ${buckets[1]}　2回目: ${buckets[2]}　3回目: ${buckets[3]}　`
+    + `4回目: ${buckets[4]}　5回目: ${buckets[5]}　6回目以上: ${buckets['6+']}`;
+}
+function typeLabelWithSub(name){
+  if(!name) return '';
+  const av = AVATARS.find(a => a.name === name);
+  return av ? `${name}（${av.sub}）` : name;
+}
+// テーブル列の並び（datetimeと削除ボタンを除く、表示用の加工が必要な列は displayFn を持つ）
+const DL_COLUMNS = [
+  {field:'datetime', label:'日時'}, {field:'name', label:'名前'}, {field:'tool', label:'きっかけ'},
+  {field:'outfit', label:'服装'}, {field:'shop', label:'お店'},
+  {field:'cost', label:'金額', displayFn: e => e.cost ? dlEscapeHtml((parseInt(e.cost,10)||0).toLocaleString('ja-JP')) + '円' : '',
+   csvFn: e => e.cost ? (parseInt(e.cost,10)||0) + '円' : ''},
+  {field:'visitCount', label:'回数'},
+  {field:'age', label:'年齢', displayFn: e => e.age ? dlEscapeHtml(e.age) + dlEscapeHtml(ageDiffLabel(e.age)) : '',
+   csvFn: e => e.age ? e.age + ageDiffLabel(e.age) : ''},
+  {field:'job', label:'職業'}, {field:'home', label:'住まい'},
+  {field:'type', label:'タイプ', displayFn: e => dlEscapeHtml(typeLabelWithSub(e.type)), csvFn: e => typeLabelWithSub(e.type)},
+  {field:'goal', label:'目標', long:true}, {field:'talk', label:'会話', long:true}, {field:'good', label:'うまくいったこと', long:true},
+  {field:'review', label:'感想・改善点', long:true}, {field:'followup', label:'その後のやり取り/次回約束', long:true},
+];
+// ─── 絞り込み（タイプ／デート回数／キーワード） ───
+let dlFilters = { type: '', visit: '', q: '' };
+function onDlFilterChange(){
+  dlFilters = {
+    type: document.getElementById('dlf-type').value,
+    visit: document.getElementById('dlf-visit').value,
+    q: document.getElementById('dlf-q').value.trim().toLowerCase(),
+  };
+  renderDateLogs();
+}
+function clearDlFilters(){
+  document.getElementById('dlf-type').value = '';
+  document.getElementById('dlf-visit').value = '';
+  document.getElementById('dlf-q').value = '';
+  dlFilters = { type: '', visit: '', q: '' };
+  renderDateLogs();
+}
+function dlMatchesFilter(e){
+  if(dlFilters.type && e.type !== dlFilters.type) return false;
+  if(dlFilters.visit){
+    const n = parseInt(e.visitCount, 10);
+    const bucket = (!n || n < 1) ? null : (n >= 6 ? '6+' : String(n));
+    if(bucket !== dlFilters.visit) return false;
+  }
+  if(dlFilters.q){
+    const haystack = ['name','tool','outfit','shop','job','home','goal','talk','good','review','followup']
+      .map(f => e[f] || '').join(' ').toLowerCase();
+    if(!haystack.includes(dlFilters.q)) return false;
+  }
+  return true;
+}
+// ─── デートログのCSV出力（絞り込み中はその結果のみ、Excel/Googleスプレッドシートどちらでも開けるようUTF-8 BOM付き） ───
+function csvEscape(v){
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+}
+function exportDateLogsCsv(){
+  const rows = state.dateLogs.filter(dlMatchesFilter);
+  if(rows.length === 0){ alert('出力対象のデートログがありません。'); return; }
+  const header = DL_COLUMNS.map(col => col.label);
+  const lines = [header.map(csvEscape).join(',')];
+  rows.forEach(e => {
+    const cells = DL_COLUMNS.map(col => csvEscape(col.csvFn ? col.csvFn(e) : (e[col.field] ?? '')));
+    lines.push(cells.join(','));
+  });
+  const csv = '﻿' + lines.join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `デートログ_${stamp}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+// ─── Notion連携（個人用インテグレーショントークン方式） ───
+// トークン・データベースID・プロキシURLはこのブラウザのlocalStorageのみに保存する（サーバーには保存しない）
+function getNotionConfig(){
+  try{ return JSON.parse(localStorage.getItem('notionConfig') || '{}'); }catch(e){ return {}; }
+}
+function openNotionSettings(){
+  const cfg = getNotionConfig();
+  document.getElementById('notion-token').value = cfg.token || '';
+  document.getElementById('notion-db').value = cfg.databaseId || '';
+  document.getElementById('notion-proxy').value = cfg.proxyUrl || '';
+  document.getElementById('notionModal').style.display = 'flex';
+}
+function closeNotionSettings(){ document.getElementById('notionModal').style.display = 'none'; }
+function saveNotionSettings(){
+  const cfg = {
+    token: document.getElementById('notion-token').value.trim(),
+    databaseId: document.getElementById('notion-db').value.trim().replace(/-/g,''),
+    proxyUrl: document.getElementById('notion-proxy').value.trim().replace(/\/$/,''),
+  };
+  localStorage.setItem('notionConfig', JSON.stringify(cfg));
+  closeNotionSettings();
+  alert('Notion連携設定を保存しました📝');
+}
+let notionSchemaCache = null;
+async function fetchNotionSchema(cfg){
+  if(notionSchemaCache) return notionSchemaCache;
+  const res = await fetch(`${cfg.proxyUrl}/api/notion`, {
+    method: 'POST', headers: {'content-type':'application/json'},
+    body: JSON.stringify({ token: cfg.token, path: `databases/${cfg.databaseId}`, method: 'GET' }),
+  });
+  const data = await res.json();
+  if(!res.ok) throw new Error(data.message || 'データベース情報の取得に失敗しました');
+  notionSchemaCache = data.properties || {};
+  return notionSchemaCache;
+}
+async function syncDateLogToNotion(id){
+  const cfg = getNotionConfig();
+  if(!cfg.token || !cfg.databaseId || !cfg.proxyUrl){
+    alert('先に「⚙️ Notion連携設定」からトークン・データベースID・プロキシURLを設定してください');
+    openNotionSettings();
+    return;
+  }
+  const entry = state.dateLogs.find(e => e.id === id);
+  if(!entry) return;
+  const btn = document.getElementById(`notion-btn-${id}`);
+  if(btn){ btn.disabled = true; btn.textContent = '連携中…'; }
+  try{
+    const schema = await fetchNotionSchema(cfg);
+    const titleName = Object.keys(schema).find(k => schema[k].type === 'title');
+    const properties = {};
+    if(titleName){
+      properties[titleName] = { title: [{ text: { content: (entry.name || entry.tool || '(無題のデートログ)').slice(0,200) } }] };
+    }
+    DL_COLUMNS.forEach(col => {
+      if(col.field === titleName) return;
+      const prop = schema[col.label];
+      if(!prop || prop.type === 'title') return;
+      const raw = col.csvFn ? col.csvFn(entry) : (entry[col.field] ?? '');
+      if(raw === '' || raw == null) return;
+      if(prop.type === 'rich_text'){
+        properties[col.label] = { rich_text: [{ text: { content: String(raw).slice(0,2000) } }] };
+      } else if(prop.type === 'number'){
+        const n = parseFloat(String(raw).replace(/[^0-9.\-]/g,''));
+        if(!isNaN(n)) properties[col.label] = { number: n };
+      } else if(prop.type === 'date' && col.field === 'datetime' && entry.datetime){
+        properties[col.label] = { date: { start: entry.datetime } };
+      }
+    });
+    // プロパティに乗らなかった情報も含め、ページ本文にも全項目を書き出す(ここにキャプチャを貼り足せる)
+    const children = DL_COLUMNS.map(col => {
+      const raw = col.csvFn ? col.csvFn(entry) : (entry[col.field] ?? '');
+      if(raw === '' || raw == null) return null;
+      return { object:'block', type:'paragraph', paragraph:{ rich_text:[{ type:'text', text:{ content: `${col.label}: ${String(raw).slice(0,1900)}` } }] } };
+    }).filter(Boolean);
+    const res = await fetch(`${cfg.proxyUrl}/api/notion`, {
+      method: 'POST', headers: {'content-type':'application/json'},
+      body: JSON.stringify({ token: cfg.token, path: 'pages', method: 'POST',
+        body: { parent: { database_id: cfg.databaseId }, properties, children } }),
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.message || 'Notionへの登録に失敗しました');
+    entry.notionUrl = data.url || '';
+    save();
+    renderDateLogs();
+  }catch(err){
+    alert('Notion連携に失敗しました: ' + err.message);
+    if(btn){ btn.disabled = false; btn.textContent = '🔗 Notion連携'; }
+  }
+}
+function renderDateLogs(){
+  renderDateLogSummary();
+  const tbody = document.getElementById('dl-tbody');
+  const countBox = document.getElementById('dl-filter-count');
+  const filtered = state.dateLogs.filter(dlMatchesFilter);
+  const isFiltered = dlFilters.type || dlFilters.visit || dlFilters.q;
+  countBox.textContent = isFiltered ? `絞り込み結果: ${filtered.length}件 / 全${state.dateLogs.length}件` : '';
+  if(state.dateLogs.length === 0){
+    tbody.innerHTML = `<tr><td colspan="${DL_COLUMNS.length+2}" class="dl-empty">まだデートログがありません。上のフォームから追加してください。</td></tr>`;
+    return;
+  }
+  if(filtered.length === 0){
+    tbody.innerHTML = `<tr><td colspan="${DL_COLUMNS.length+2}" class="dl-empty">条件に一致するデートログがありません。</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = [...filtered].reverse().map(e => {
+    const cells = DL_COLUMNS.map(col => {
+      if(col.displayFn){
+        // 注釈（年齢差・タイプ副属性）が付くセルは表示専用。編集はフォームから行う
+        return `<td class="dl-readonly" title="編集はフォームから行ってください">${col.displayFn(e)}</td>`;
+      }
+      // 長文項目(目標/会話/うまくいったこと/感想/やり取り)はスプレッドシートのように1行分だけ表示し、
+      // クリックして編集中(:focus)は展開する。全文はtitle属性のホバーで確認可能
+      const longClass = col.long ? ' class="dl-longtext"' : '';
+      return `<td${longClass} contenteditable="true" title="${dlEscapeHtml(e[col.field])}" onblur="updateDateLogField(${e.id},'${col.field}',this.textContent)">${dlEscapeHtml(e[col.field])}</td>`;
+    }).join('');
+    const notionCell = e.notionUrl
+      ? `<a href="${dlEscapeHtml(e.notionUrl)}" target="_blank" rel="noopener">📎 開く</a>`
+      : '<span class="dl-readonly">-</span>';
+    return `<tr>${cells}<td class="dl-readonly">${notionCell}</td><td>
+      <button id="notion-btn-${e.id}" class="dl-del-btn" onclick="syncDateLogToNotion(${e.id})">🔗 Notion連携</button>
+      <button class="dl-del-btn" onclick="deleteDateLog(${e.id})">削除</button>
+    </td></tr>`;
+  }).join('');
+}
+function populateDateLogTypeSelect(){
+  ['dl-type', 'dlf-type'].forEach(id => {
+    const sel = document.getElementById(id);
+    AVATARS.forEach(av => {
+      const opt = document.createElement('option');
+      opt.value = av.name;
+      opt.textContent = `${av.name}（${av.sub}）`;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// リロードボタン(ホーム画面追加時のスタンドアロン表示にはブラウザのリロードUIがないため)
+document.getElementById('reloadBtn').addEventListener('click', () => {
+  location.href = location.pathname + '?t=' + Date.now();
+});
 
 // ─── INIT ────────────────────────────────────────────
 load();
@@ -389,6 +1648,9 @@ if(localStorage.getItem('lqm')){
   document.getElementById('modal').style.display = 'flex';
 }
 renderAll();
+populateDateLogTypeSelect();
+document.getElementById('dl-mybirth').value = state.myBirth || '';
+renderDateLogs();
 </script>
 </body>
 </html>
